@@ -512,7 +512,65 @@
     }
   }
 
+  /* ---------------- Hero: shelf lamps light up while the cursor moves over the title ---------------- */
+  function initHeroLamps(){
+    var hero = document.querySelector(".hero");
+    var wrap = document.getElementById("hero-title-wrap");
+    if(!hero || !wrap || !hero.querySelector(".hero-lamps")) return;
+
+    // lamp cluster in cave-hero.jpg (1280x853): centre and half-size in image pixels
+    var IMG_W = 1280, IMG_H = 853;
+    var LAMP_X = 556, LAMP_Y = 445, LAMP_RX = 95, LAMP_RY = 105;
+    var GAIN = 0.012;       // brightness gained per px of cursor travel over the title
+    var DECAY = 0.982;      // per frame; ~3 s to fade out
+    var EASE = 0.12;        // how quickly the visible light follows the energy
+
+    var energy = 0, shown = 0, raf = null;
+    var lastX = null, lastY = null;
+
+    function place(){
+      var w = hero.clientWidth, h = hero.clientHeight;
+      var scale = Math.max(w / IMG_W, h / IMG_H);   // background-size: cover
+      var offX = (w - IMG_W * scale) / 2;           // background-position: center 50%
+      var offY = (h - IMG_H * scale) / 2;
+      hero.style.setProperty("--lamp-x", Math.round(offX + LAMP_X * scale) + "px");
+      hero.style.setProperty("--lamp-y", Math.round(offY + LAMP_Y * scale) + "px");
+      hero.style.setProperty("--lamp-rx", Math.round(LAMP_RX * scale) + "px");
+      hero.style.setProperty("--lamp-ry", Math.round(LAMP_RY * scale) + "px");
+    }
+
+    function tick(){
+      energy *= DECAY;
+      shown += (energy - shown) * EASE;
+      hero.style.setProperty("--lamp", shown.toFixed(3));
+      if(energy > 0.002 || shown > 0.002){
+        raf = requestAnimationFrame(tick);
+      }else{
+        energy = shown = 0;
+        hero.style.setProperty("--lamp", "0");
+        raf = null;
+      }
+    }
+
+    document.addEventListener("pointermove", function(e){
+      var r = wrap.getBoundingClientRect();
+      var M = 30;
+      var over = e.clientX > r.left - M && e.clientX < r.right + M && e.clientY > r.top - M && e.clientY < r.bottom + M;
+      if(over && lastX !== null){
+        var travel = Math.min(60, Math.hypot(e.clientX - lastX, e.clientY - lastY));
+        energy = Math.min(1, energy + travel * GAIN);
+        if(!raf){ raf = requestAnimationFrame(tick); }
+      }
+      lastX = e.clientX; lastY = e.clientY;
+    }, { passive:true });
+
+    var t;
+    window.addEventListener("resize", function(){ clearTimeout(t); t = setTimeout(place, 150); });
+    place();
+  }
+
   document.addEventListener("DOMContentLoaded", function(){
+    initHeroLamps();
     initLang();
     initHeader();
     initReveal();
