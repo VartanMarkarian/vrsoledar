@@ -228,7 +228,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 }
 .hero-center{
   grid-row:2;
-  position:relative; z-index:2;
+  position:relative; top:-50px; z-index:2;
   display:flex; justify-content:center;
   padding:0 var(--gutter);
 }
