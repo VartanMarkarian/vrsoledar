@@ -505,23 +505,55 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   padding-right:var(--gutter);
 }
 .exp-switch{
-  align-self:flex-end;
-  position:relative;
-  width:clamp(130px, 12vw, 190px); aspect-ratio:520 / 622;
-  margin-bottom:clamp(20px, 3vw, 40px);
+  --sw-w:clamp(120px, 11vw, 170px);
+  --sw-h:calc(var(--sw-w) * 532 / 408);
+  /* desktop: sits to the right of the first two lines of the text */
+  position:absolute; right:var(--gutter);
+  top:calc(var(--exp-line2) - var(--sw-h) * .37); /* .37 = centre of the plate within the cut-out image */
+  width:var(--sw-w); height:var(--sw-h);
   padding:0; border:0; background:none; cursor:pointer;
-  -webkit-mask-image:radial-gradient(ellipse 60% 57% at 50% 46%, #000 58%, transparent 100%);
-          mask-image:radial-gradient(ellipse 60% 57% at 50% 46%, #000 58%, transparent 100%);
-  transition:transform .25s var(--ease), filter .3s;
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .25s var(--ease);
+  animation:sw-pulse 2.4s ease-in-out infinite;
 }
-.exp-switch img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+/* the image is cut out along the plate contour, so drop-shadow glows around the switch itself */
+@keyframes sw-pulse{
+  0%, 100%{ filter:drop-shadow(0 0 0 rgba(255,184,120,0)) brightness(1); }
+  50%{ filter:drop-shadow(0 0 3px rgba(255,214,170,.55)) drop-shadow(0 0 16px rgba(255,160,90,.45)) brightness(1.25); }
+}
+.exp-switch img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
 .exp-switch-on{ opacity:0; transition:opacity .25s ease; }
 .experience.is-on .exp-switch-on{ opacity:1; }
-.exp-switch:hover{ filter:brightness(1.25); }
+/* game-style sweep of light across the plate, clipped to its shape */
+.exp-switch::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:linear-gradient(115deg, transparent 44.5%, rgba(255,230,200,.35) 48%, rgba(255,255,255,.85) 50%, rgba(255,230,200,.35) 52%, transparent 55.5%) no-repeat;
+  background-size:260% 100%;
+  background-position:130% 0;
+  -webkit-mask:url('../img/exp/switch-off.webp') center / contain no-repeat;
+          mask:url('../img/exp/switch-off.webp') center / contain no-repeat;
+  mix-blend-mode:screen;
+  animation:sw-shine 3.2s ease-in-out infinite;
+}
+@keyframes sw-shine{
+  0%{ background-position:130% 0; }
+  38%, 100%{ background-position:-30% 0; }
+}
+.exp-switch:hover{ transform:scale(1.04); }
 .exp-switch:active{ transform:scale(.96); }
-.exp-switch:focus-visible{ outline:none; filter:brightness(1.35) drop-shadow(0 0 10px rgba(255,191,143,.5)); }
+.exp-switch:focus-visible{ outline:2px solid rgba(255,191,143,.7); outline-offset:6px; border-radius:6px; }
+/* once the light is on the hint calms down to a steady warm glow */
+.experience.is-on .exp-switch{ animation:none; filter:drop-shadow(0 0 10px rgba(255,150,80,.35)); }
+.experience.is-on .exp-switch::after{ animation:none; opacity:0; }
+@media (prefers-reduced-motion: reduce){
+  .exp-switch, .exp-switch::after{ animation:none; }
+}
 
-.exp-text{ max-width:var(--exp-text-w); }
+.exp-text{
+  /* vertical centre between the 1st and 2nd line of the first paragraph (eyebrow + gap + one line) */
+  max-width:var(--exp-text-w);
+}
+.exp-body{ --exp-line2:calc(26px + 22px + clamp(16px,1.7vw,19px) * 1.75); }
 .exp-text p{
   font-size:clamp(16px,1.7vw,19px); line-height:1.75; color:var(--ink-dim);
   font-weight:300; margin-top:24px;
@@ -777,6 +809,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
             mask-image:linear-gradient(to bottom, transparent 0, #000 12%, #000 72%, transparent 100%);
   }
   .exp-body{ padding-left:var(--gutter); margin-top:calc(-1 * clamp(60px, 16vw, 120px)); }
+  .exp-switch{ position:relative; right:auto; top:auto; align-self:flex-end; margin-bottom:clamp(16px, 4vw, 28px); }
   .exp-text{ max-width:none; }
 }
 
