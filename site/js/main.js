@@ -241,14 +241,16 @@
     var PALETTE = ["#fffaf2", "#ffd9a8", "#eef6ff", "#cfc6b4", "#b9c9d6"];
 
     // soft spring + strong damping: particles drift back without bouncing
-    var SPRING = 0.012;
-    var DAMPING = 0.83;
+    var SPRING = 0.008;
+    var DAMPING = 0.86;
     var REPEL_RADIUS = 100;
-    var REPEL_FORCE = 1.35;
-    var LIFT = 0.35;       // pushed particles rise a little, like dust in air
+    var REPEL_FORCE = 1.8;
+    var LIFT = 0.3;        // pushed particles rise a little, like dust in air
+    var SWIRL = 1.0;       // sideways (tangential) spread, per-particle direction
     var FLOAT_AMP = 0.4;   // barely visible idle wandering around the home point, px
     var FLOAT_SPEED = 0.35;
-    var DRAFT = 0.06;      // particles get carried along the cursor's motion, like a breath of air
+    var DRAFT = 0.18;      // particles get swept along the cursor's motion
+    var DUST_FADE = 180;   // px of displacement at which a particle is most transparent
 
     // Reflection (mirror below the title, like a water surface)
     var REFL_GAP = 6;
@@ -276,7 +278,7 @@
       var rect = h1.getBoundingClientRect();
       var w = Math.max(1, Math.round(rect.width));
       var h = Math.max(1, Math.round(rect.height));
-      var PAD = Math.round(REPEL_RADIUS * 1.4);
+      var PAD = Math.round(REPEL_RADIUS * 2.4);
 
       var off = document.createElement("canvas");
       // integer pixel size; the row stride below must match exactly or rows drift sideways at fractional DPR
@@ -360,6 +362,8 @@
         x: hx, y: hy,
         vx: 0, vy: 0,
         refl: refl, fade: fade,
+        scat: 0.45 + Math.random() * 1.2,
+        swirl: (Math.random() - 0.5) * 2 * SWIRL,
         ph: Math.random() * Math.PI * 2,
         jf: 0.25 + Math.random() * 0.5,
         flick: 0.5 + Math.random() * 1.1,
@@ -372,7 +376,10 @@
       if(!canvasRect){ canvasRect = canvas.getBoundingClientRect(); }
       var localMouseX = mouseX - canvasRect.left;
       var localMouseY = mouseY - canvasRect.top;
-      var r2 = REPEL_RADIUS * REPEL_RADIUS;
+      // the faster the cursor moves, the wider the area it stirs up
+      var mouseSpeed = Math.min(30, Math.sqrt(mouseVX * mouseVX + mouseVY * mouseVY));
+      var repelR = REPEL_RADIUS * (1 + mouseSpeed / 30 * 0.7);
+      var r2 = repelR * repelR;
 
       // autonomous "ghost cursor" that keeps wandering through the reflection
       var ghostR = REPEL_RADIUS * 0.9;
@@ -398,10 +405,12 @@
         var d2 = dx * dx + dy * dy;
         if(d2 < r2){
           var d = Math.sqrt(d2) || 0.001;
-          var force = 1 - d / REPEL_RADIUS;
-          force = force * force * REPEL_FORCE;
-          fx += (dx / d) * force + mouseVX * force * DRAFT;
-          fy += (dy / d) * force - force * LIFT + mouseVY * force * DRAFT;
+          var force = 1 - d / repelR;
+          force = force * force * REPEL_FORCE * p.scat;
+          var nx = dx / d, ny = dy / d;
+          // radial push + sideways swirl + sweep along the cursor's motion = dust cloud
+          fx += nx * force - ny * force * p.swirl + mouseVX * force * DRAFT;
+          fy += ny * force + nx * force * p.swirl - force * LIFT + mouseVY * force * DRAFT;
         }
 
         if(p.refl){
@@ -410,7 +419,7 @@
           if(gd2 < ghostR2){
             var gd = Math.sqrt(gd2) || 0.001;
             var gforce = 1 - gd / ghostR;
-            gforce = gforce * gforce * REPEL_FORCE * 0.8;
+            gforce = gforce * gforce * REPEL_FORCE * 0.6;
             fx += (gdx / gd) * gforce;
             fy += (gdy / gd) * gforce;
           }
@@ -423,6 +432,12 @@
         p.y += p.vy;
 
         var twinkle = 0.68 + 0.32 * Math.sin(t * p.flick + p.ph);
+        // scattered dust thins out the further it drifts from home
+        var ox = p.x - p.hx, oy = p.y - p.hy;
+        var disp2 = ox * ox + oy * oy;
+        if(disp2 > 4){
+          twinkle *= 1 - Math.min(Math.sqrt(disp2) / DUST_FADE, 1) * 0.6;
+        }
         var drawX = p.x;
         if(p.refl){
           twinkle *= p.fade;
