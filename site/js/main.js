@@ -280,10 +280,21 @@
       octx.scale(DPR, DPR);
       octx.fillStyle = "#fff";
       octx.textBaseline = "middle";
-      octx.textAlign = "left";
+      octx.textAlign = "center";
       octx.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + "/" + cs.lineHeight + " " + cs.fontFamily;
       try{ octx.letterSpacing = cs.letterSpacing; }catch(e){}
-      octx.fillText(h1.textContent.toUpperCase(), 0, h / 2);
+
+      var lineEls = h1.querySelectorAll(".line");
+      if(lineEls.length){
+        lineEls.forEach(function(lineEl){
+          var lr = lineEl.getBoundingClientRect();
+          var cx = (lr.left - rect.left) + lr.width / 2;
+          var cy = (lr.top - rect.top) + lr.height / 2;
+          octx.fillText(lineEl.textContent.toUpperCase(), cx, cy);
+        });
+      }else{
+        octx.fillText(h1.textContent.toUpperCase(), w / 2, h / 2);
+      }
 
       var data = octx.getImageData(0, 0, w * DPR, h * DPR).data;
       var dense = window.innerWidth >= 700;
