@@ -270,7 +270,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 }
 .hero-lamps-glow{
   /* warm light spilling onto the cave around the shelf */
-  background:radial-gradient(ellipse calc(var(--lamp-rx,0px) * 3.2) calc(var(--lamp-ry,0px) * 2.4) at var(--lamp-x,50%) var(--lamp-y,50%), rgba(255,196,140,.34) 0%, rgba(255,160,100,.12) 40%, transparent 72%);
+  background:radial-gradient(ellipse calc(var(--lamp-rx,0px) * 3.2) calc(var(--lamp-ry,0px) * 2.4) at var(--lamp-x,50%) var(--lamp-y,50%), rgba(255,196,140,.28) 0%, rgba(255,160,100,.1) 40%, transparent 72%);
   mix-blend-mode:screen;
   opacity:var(--lamp, 0);
 }
@@ -281,14 +281,15 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
           mask-image:radial-gradient(ellipse var(--lamp-rx,0px) var(--lamp-ry,0px) at var(--lamp-x,50%) var(--lamp-y,50%), #000 0%, rgba(0,0,0,.6) 45%, transparent 100%);
 }
 .hero-lamps-lit{
-  filter:brightness(2.3) saturate(1.35);
+  /* saturate before brightening so each lamp keeps its own colour instead of clipping to white */
+  filter:saturate(2) brightness(1.5);
   opacity:var(--lamp, 0);
 }
 .hero-lamps-bloom{
-  /* soft halo around each lamp */
-  filter:blur(7px) brightness(2.8) saturate(1.5);
+  /* soft coloured halo around each lamp */
+  filter:blur(7px) saturate(2.2) brightness(1.6);
   mix-blend-mode:screen;
-  opacity:calc(var(--lamp, 0) * .75);
+  opacity:calc(var(--lamp, 0) * .45);
 }
 @keyframes hero-drift{
   from{ transform:scale(1.04) translate3d(0,0,0); }
