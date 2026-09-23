@@ -512,7 +512,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
      moved 200px from the screen edge towards the text but never closer than 48px to it */
   position:absolute;
   left:max(var(--exp-text-left) + var(--exp-text-w) + 48px, 100% - var(--gutter) - var(--sw-w) - 200px);
-  top:calc(var(--exp-line2) - var(--sw-h) * .37); /* .37 = centre of the plate within the cut-out image */
+  top:calc(var(--exp-line2) - var(--sw-h) * .37 + 200px); /* .37 = centre of the plate within the cut-out image; +200px lowers it on desktop */
   width:var(--sw-w); height:var(--sw-h);
   padding:0; border:0; background:none; cursor:pointer;
   -webkit-tap-highlight-color:transparent;
@@ -552,6 +552,11 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 .experience.is-on .exp-switch::after{ animation:none; opacity:0; }
 @media (prefers-reduced-motion: reduce){
   .exp-switch, .exp-switch::after{ animation:none; }
+}
+/* 15–17" laptop screens: gnome photo and switch 20% smaller */
+@media (min-width: 981px) and (max-width: 1680px){
+  .exp-gnome{ transform:scale(.8); transform-origin:0 50%; }
+  .exp-switch{ --sw-w:calc(clamp(120px, 11vw, 170px) * .8); }
 }
 
 .exp-text{
