@@ -254,8 +254,12 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 .hero-kicker .dot{ width:6px; height:6px; border-radius:50%; background:var(--amber); box-shadow:0 0 12px 2px var(--amber); }
 .hero-title-wrap{
   position:relative;
-  filter:url(#hero-amalgam);
   cursor:default;
+}
+.hero-title-particles{
+  position:absolute; left:0; top:0;
+  pointer-events:none;
+  opacity:0;
 }
 .hero h1{
   font-family:var(--font-display); font-weight:700;

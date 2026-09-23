@@ -10,6 +10,7 @@
     document.querySelectorAll("[data-set-lang]").forEach(function(btn){
       btn.classList.toggle("is-active", btn.getAttribute("data-set-lang") === lang);
     });
+    document.dispatchEvent(new CustomEvent("refraction:lang-changed", { detail: lang }));
   }
   function initLang(){
     var saved = "ua";
@@ -229,43 +230,138 @@
     });
   }
 
-  /* ---------------- Hero title: liquid-mirror hover distortion ---------------- */
-  function initHeroDistort(){
-    var wrap = document.querySelector(".hero-title-wrap");
-    var disp = document.getElementById("hero-amalgam-disp");
-    if(!wrap || !disp) return;
+  /* ---------------- Hero title: dissolve into particles on hover ---------------- */
+  function initHeroParticles(){
+    var wrap = document.getElementById("hero-title-wrap");
+    var canvas = document.getElementById("hero-title-particles");
+    if(!wrap || !canvas) return;
+    var ctx = canvas.getContext("2d");
+    var DPR = Math.min(window.devicePixelRatio || 1, 2);
+    var PALETTE = ["#fffaf2", "#ffd9a8", "#eef6ff", "#cfc6b4", "#b9c9d6"];
 
-    var target = 0, current = 0, raf = null;
+    var particles = [];
+    var ready = false;
+    var scatter = 0, scatterTarget = 0, raf = null;
+
+    function activeH1(){
+      var lang = document.documentElement.getAttribute("data-active-lang") || "ua";
+      return wrap.querySelector('h1[data-lang="' + lang + '"]');
+    }
+
+    function buildParticles(){
+      var h1 = activeH1();
+      if(!h1) return;
+      var rect = h1.getBoundingClientRect();
+      var w = Math.max(1, Math.round(rect.width));
+      var h = Math.max(1, Math.round(rect.height));
+      canvas.width = w * DPR;
+      canvas.height = h * DPR;
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+
+      var off = document.createElement("canvas");
+      off.width = w * DPR;
+      off.height = h * DPR;
+      var octx = off.getContext("2d");
+      var cs = getComputedStyle(h1);
+      octx.scale(DPR, DPR);
+      octx.fillStyle = "#fff";
+      octx.textBaseline = "middle";
+      octx.textAlign = "left";
+      octx.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + "/" + cs.lineHeight + " " + cs.fontFamily;
+      try{ octx.letterSpacing = cs.letterSpacing; }catch(e){}
+      octx.fillText(h1.textContent.toUpperCase(), 0, h / 2);
+
+      var data = octx.getImageData(0, 0, w * DPR, h * DPR).data;
+      particles = [];
+      var step = Math.max(2, Math.round(3 * DPR));
+      for(var y = 0; y < h * DPR; y += step){
+        for(var x = 0; x < w * DPR; x += step){
+          var alpha = data[(y * w * DPR + x) * 4 + 3];
+          if(alpha > 120){
+            particles.push({
+              ox: x / DPR, oy: y / DPR,
+              angle: Math.random() * Math.PI * 2,
+              dist: 30 + Math.random() * 150,
+              speed: 0.3 + Math.random() * 0.7,
+              phase: Math.random() * Math.PI * 2,
+              size: (0.7 + Math.random() * 1.5) * DPR,
+              color: PALETTE[(Math.random() * PALETTE.length) | 0]
+            });
+          }
+        }
+      }
+      ready = particles.length > 0;
+    }
+
+    function draw(){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if(!ready) return;
+      var t = performance.now() * 0.001;
+      var ease = scatter * (2 - scatter); // ease-out quad, smooth spread
+      ctx.save();
+      ctx.scale(DPR, DPR);
+      for(var i = 0; i < particles.length; i++){
+        var p = particles[i];
+        var jitter = 2.5 * scatter;
+        var dx = Math.cos(p.angle) * p.dist * ease + Math.cos(t * p.speed + p.phase) * jitter;
+        var dy = Math.sin(p.angle) * p.dist * ease + Math.sin(t * p.speed * 0.8 + p.phase) * jitter;
+        ctx.globalAlpha = Math.max(0, 1 - ease * 0.25);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.ox + dx, p.oy + dy, p.size / DPR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
 
     function loop(){
-      current += (target - current) * 0.08;
-      disp.setAttribute("scale", current.toFixed(1));
-      if(Math.abs(target - current) > 0.15){
+      scatter += (scatterTarget - scatter) * 0.055;
+      var h1 = activeH1();
+      var fade = Math.min(1, scatter * 1.6);
+      if(h1) h1.style.opacity = String(Math.max(0, 1 - fade));
+      canvas.style.opacity = String(fade);
+      draw();
+      if(Math.abs(scatterTarget - scatter) > 0.002 || scatter > 0.002){
         raf = requestAnimationFrame(loop);
       }else{
-        disp.setAttribute("scale", String(target));
+        scatter = 0;
+        if(h1) h1.style.opacity = "";
+        canvas.style.opacity = "0";
         raf = null;
       }
     }
-    function ensureLoop(){
-      if(!raf){ raf = requestAnimationFrame(loop); }
-    }
+    function ensureLoop(){ if(!raf){ raf = requestAnimationFrame(loop); } }
 
     wrap.addEventListener("mouseenter", function(){
-      target = 50;
-      ensureLoop();
-    });
-    wrap.addEventListener("mousemove", function(e){
-      var r = wrap.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width;
-      var py = (e.clientY - r.top) / r.height;
-      target = 42 + Math.sin((px + py) * 6) * 16;
+      if(!ready) buildParticles();
+      scatterTarget = 1;
       ensureLoop();
     });
     wrap.addEventListener("mouseleave", function(){
-      target = 0;
+      scatterTarget = 0;
       ensureLoop();
     });
+
+    document.addEventListener("refraction:lang-changed", function(){
+      ready = false;
+      var h1 = activeH1();
+      if(h1) h1.style.opacity = "";
+      canvas.style.opacity = "0";
+      scatter = 0; scatterTarget = 0;
+    });
+
+    var resizeTimer;
+    window.addEventListener("resize", function(){
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function(){ ready = false; }, 200);
+    });
+
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(buildParticles);
+    }else{
+      setTimeout(buildParticles, 300);
+    }
   }
 
   document.addEventListener("DOMContentLoaded", function(){
@@ -275,7 +371,7 @@
     initParticles();
     initExperience();
     initVideoEmbed();
-    initHeroDistort();
+    initHeroParticles();
     initLightbox();
   });
 })();

@@ -63,17 +63,10 @@
         <span data-lang="ua">Інтерактивний VR-проєкт</span>
         <span data-lang="en">Interactive VR project</span>
       </div>
-      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <filter id="hero-amalgam" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
-          <feTurbulence id="hero-amalgam-noise" type="fractalNoise" baseFrequency="0.012 0.028" numOctaves="2" seed="7" result="noise">
-            <animate attributeName="baseFrequency" dur="14s" values="0.010 0.024;0.018 0.032;0.010 0.024" repeatCount="indefinite" />
-          </feTurbulence>
-          <feDisplacementMap id="hero-amalgam-disp" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </svg>
-      <div class="hero-title-wrap">
+      <div class="hero-title-wrap" id="hero-title-wrap">
         <h1 data-lang="ua">Віддзеркалення</h1>
         <h1 data-lang="en">Refraction</h1>
+        <canvas class="hero-title-particles" id="hero-title-particles" aria-hidden="true"></canvas>
       </div>
       <p class="hero-tagline" data-lang="ua">Проєкт про пам'ять, втрату та присутність, створений на основі особистого досвіду перебування у Соледарі, архівних матеріалів та спогадів людей, чиє життя було пов'язане з містом і навколишніми громадами.</p>
       <p class="hero-tagline" data-lang="en">A project about memory, loss and presence, created from personal experience in Soledar, archival materials, and the memories of people whose lives were tied to the city and its surrounding communities.</p>
