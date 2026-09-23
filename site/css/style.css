@@ -507,12 +507,16 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 .exp-switch{
   --sw-w:clamp(120px, 11vw, 170px);
   --sw-h:calc(var(--sw-w) * 532 / 408);
-  /* desktop: sits to the right of the first two lines of the text */
-  position:absolute; right:var(--gutter);
+  /* desktop: sits to the right of the first two lines of the text,
+     moved 200px from the screen edge towards the text but never closer than 48px to it */
+  position:absolute;
+  left:max(var(--exp-text-left) + var(--exp-text-w) + 48px, 100% - var(--gutter) - var(--sw-w) - 200px);
   top:calc(var(--exp-line2) - var(--sw-h) * .37); /* .37 = centre of the plate within the cut-out image */
   width:var(--sw-w); height:var(--sw-h);
   padding:0; border:0; background:none; cursor:pointer;
   -webkit-tap-highlight-color:transparent;
+  --sw-flip:-1; /* mirrored horizontally */
+  transform:scaleX(var(--sw-flip));
   transition:transform .25s var(--ease);
   animation:sw-pulse 2.4s ease-in-out infinite;
 }
@@ -539,8 +543,8 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   0%{ background-position:130% 0; }
   38%, 100%{ background-position:-30% 0; }
 }
-.exp-switch:hover{ transform:scale(1.04); }
-.exp-switch:active{ transform:scale(.96); }
+.exp-switch:hover{ transform:scale(calc(var(--sw-flip) * 1.04), 1.04); }
+.exp-switch:active{ transform:scale(calc(var(--sw-flip) * .96), .96); }
 .exp-switch:focus-visible{ outline:2px solid rgba(255,191,143,.7); outline-offset:6px; border-radius:6px; }
 /* once the light is on the hint calms down to a steady warm glow */
 .experience.is-on .exp-switch{ animation:none; filter:drop-shadow(0 0 10px rgba(255,150,80,.35)); }
@@ -809,7 +813,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
             mask-image:linear-gradient(to bottom, transparent 0, #000 12%, #000 72%, transparent 100%);
   }
   .exp-body{ padding-left:var(--gutter); margin-top:calc(-1 * clamp(60px, 16vw, 120px)); }
-  .exp-switch{ position:relative; right:auto; top:auto; align-self:flex-end; margin-bottom:clamp(16px, 4vw, 28px); }
+  .exp-switch{ position:relative; left:auto; top:auto; align-self:flex-end; margin-bottom:clamp(16px, 4vw, 28px); }
   .exp-text{ max-width:none; }
 }
 
