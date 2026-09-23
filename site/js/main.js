@@ -246,11 +246,19 @@
     var REPEL_FORCE = 3.1;
     var JITTER = 0.55;
 
+    // Reflection (mirror below the title, like a water surface)
+    var REFL_GAP = 6;
+    var REFL_SQUASH = 0.72;
+    var REFL_ALPHA = 0.55;
+    var REFL_SPRING = 0.04;
+    var REFL_DAMPING = 0.92;
+
     var particles = [];
     var running = false;
     var raf = null;
     var mouseX = -9999, mouseY = -9999;
     var canvasRect = null;
+    var field = { pad:0, w:0, reflTop:0, reflH:0 };
 
     function activeH1(){
       var lang = document.documentElement.getAttribute("data-active-lang") || "ua";
@@ -264,17 +272,12 @@
       var w = Math.max(1, Math.round(rect.width));
       var h = Math.max(1, Math.round(rect.height));
       var PAD = Math.round(REPEL_RADIUS * 1.4);
-      canvas.width = (w + PAD * 2) * DPR;
-      canvas.height = (h + PAD * 2) * DPR;
-      canvas.style.width = (w + PAD * 2) + "px";
-      canvas.style.height = (h + PAD * 2) + "px";
-      canvas.style.left = (-PAD) + "px";
-      canvas.style.top = (-PAD) + "px";
-      canvasRect = null;
 
       var off = document.createElement("canvas");
-      off.width = w * DPR;
-      off.height = h * DPR;
+      // integer pixel size; the row stride below must match exactly or rows drift sideways at fractional DPR
+      var OW = Math.round(w * DPR), OH = Math.round(h * DPR);
+      off.width = OW;
+      off.height = OH;
       var octx = off.getContext("2d");
       var cs = getComputedStyle(h1);
       octx.scale(DPR, DPR);
@@ -296,31 +299,68 @@
         octx.fillText(h1.textContent.toUpperCase(), w / 2, h / 2);
       }
 
-      var data = octx.getImageData(0, 0, w * DPR, h * DPR).data;
+      var data = octx.getImageData(0, 0, OW, OH).data;
       var dense = window.innerWidth >= 700;
       var step = Math.max(1, Math.round((dense ? 1.6 : 2.6) * DPR));
-      var oldCount = particles.length;
-      particles = [];
-      var i = 0;
-      for(var y = 0; y < h * DPR; y += step){
-        for(var x = 0; x < w * DPR; x += step){
-          var alpha = data[(y * w * DPR + x) * 4 + 3];
-          if(alpha > 120){
-            var hx = x / DPR + PAD, hy = y / DPR + PAD;
-            particles.push({
-              hx: hx, hy: hy,
-              x: hx, y: hy,
-              vx: 0, vy: 0,
-              ph: Math.random() * Math.PI * 2,
-              jf: 0.25 + Math.random() * 0.5,
-              flick: 0.5 + Math.random() * 1.1,
-              size: (0.9 + Math.random() * 1.3) * DPR,
-              color: PALETTE[(Math.random() * PALETTE.length) | 0]
-            });
-            i++;
+
+      var points = [];
+      var glyphTop = Infinity, glyphBottom = -Infinity;
+      for(var y = 0; y < OH; y += step){
+        for(var x = 0; x < OW; x += step){
+          if(data[(y * OW + x) * 4 + 3] > 120){
+            var lx = x / DPR, ly = y / DPR;
+            points.push(lx, ly);
+            if(ly < glyphTop) glyphTop = ly;
+            if(ly > glyphBottom) glyphBottom = ly;
           }
         }
       }
+      if(!points.length) return;
+
+      var glyphH = glyphBottom - glyphTop;
+      var reflTop = glyphBottom + REFL_GAP;
+      var reflH = glyphH * REFL_SQUASH;
+      var extra = Math.max(0, Math.ceil(reflTop + reflH - h));
+
+      canvas.width = Math.round((w + PAD * 2) * DPR);
+      canvas.height = Math.round((h + extra + PAD * 2) * DPR);
+      canvas.style.width = (w + PAD * 2) + "px";
+      canvas.style.height = (h + extra + PAD * 2) + "px";
+      canvas.style.left = (-PAD) + "px";
+      canvas.style.top = (-PAD) + "px";
+      canvasRect = null;
+      field = { pad:PAD, w:w, reflTop:reflTop + PAD, reflH:reflH };
+
+      particles = [];
+      for(var n = 0; n < points.length; n += 2){
+        var px = points[n], py = points[n + 1];
+        var hx = px + PAD, hy = py + PAD;
+        particles.push(makeParticle(hx, hy, false, 1));
+
+        // every other glyph point also gets a mirrored twin below the title
+        if((n / 2) % 2 === 0){
+          var ry = reflTop + (glyphBottom - py) * REFL_SQUASH;
+          var k = (ry - reflTop) / (reflH || 1);
+          var fade = Math.pow(1 - k, 1.6) * REFL_ALPHA;
+          if(fade > 0.02){
+            particles.push(makeParticle(hx, ry + PAD, true, fade));
+          }
+        }
+      }
+    }
+
+    function makeParticle(hx, hy, refl, fade){
+      return {
+        hx: hx, hy: hy,
+        x: hx, y: hy,
+        vx: 0, vy: 0,
+        refl: refl, fade: fade,
+        ph: Math.random() * Math.PI * 2,
+        jf: 0.25 + Math.random() * 0.5,
+        flick: 0.5 + Math.random() * 1.1,
+        size: (0.9 + Math.random() * 1.3) * DPR * (refl ? 0.9 : 1),
+        color: PALETTE[(Math.random() * PALETTE.length) | 0]
+      };
     }
 
     function draw(t){
@@ -329,15 +369,22 @@
       var localMouseY = mouseY - canvasRect.top;
       var r2 = REPEL_RADIUS * REPEL_RADIUS;
 
+      // autonomous "ghost cursor" that keeps wandering through the reflection
+      var ghostR = REPEL_RADIUS * 0.9;
+      var ghostR2 = ghostR * ghostR;
+      var ghostX = field.pad + field.w * (0.5 + 0.47 * Math.sin(t * 0.37 + Math.sin(t * 0.11) * 1.6));
+      var ghostY = field.reflTop + field.reflH * (0.4 + 0.35 * Math.sin(t * 0.83));
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
       ctx.scale(DPR, DPR);
 
       for(var idx = 0; idx < particles.length; idx++){
         var p = particles[idx];
+        var spring = p.refl ? REFL_SPRING : SPRING;
 
-        var fx = (p.hx - p.x) * SPRING;
-        var fy = (p.hy - p.y) * SPRING;
+        var fx = (p.hx - p.x) * spring;
+        var fy = (p.hy - p.y) * spring;
         fx += Math.cos(t * p.jf + p.ph) * JITTER * 0.03;
         fy += Math.sin(t * p.jf * 0.85 + p.ph) * JITTER * 0.03;
 
@@ -351,16 +398,35 @@
           fy += (dy / d) * force;
         }
 
-        p.vx = (p.vx + fx) * DAMPING;
-        p.vy = (p.vy + fy) * DAMPING;
+        if(p.refl){
+          var gdx = p.x - ghostX, gdy = p.y - ghostY;
+          var gd2 = gdx * gdx + gdy * gdy;
+          if(gd2 < ghostR2){
+            var gd = Math.sqrt(gd2) || 0.001;
+            var gforce = 1 - gd / ghostR;
+            gforce = gforce * gforce * REPEL_FORCE * 0.85;
+            fx += (gdx / gd) * gforce;
+            fy += (gdy / gd) * gforce;
+          }
+        }
+
+        var damping = p.refl ? REFL_DAMPING : DAMPING;
+        p.vx = (p.vx + fx) * damping;
+        p.vy = (p.vy + fy) * damping;
         p.x += p.vx;
         p.y += p.vy;
 
         var twinkle = 0.68 + 0.32 * Math.sin(t * p.flick + p.ph);
+        var drawX = p.x;
+        if(p.refl){
+          twinkle *= p.fade;
+          // gentle water ripple, stronger further from the title
+          drawX += Math.sin(p.hy * 0.11 + t * 2.1) * (0.6 + (p.hy - field.reflTop) * 0.05);
+        }
         ctx.globalAlpha = twinkle;
         ctx.fillStyle = p.color;
         var s = p.size / DPR;
-        ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+        ctx.fillRect(drawX - s / 2, p.y - s / 2, s, s);
       }
       ctx.restore();
     }
