@@ -259,7 +259,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 .hero-title-particles{
   position:absolute; left:0; top:0;
   pointer-events:none;
-  opacity:0;
+  opacity:1;
 }
 .hero h1{
   font-family:var(--font-display); font-weight:700;
@@ -267,21 +267,12 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   line-height:1.02; letter-spacing:-.005em;
   text-transform:uppercase;
   white-space:nowrap;
-  background:linear-gradient(100deg,
-    #cfc6b4 0%, #fffaf2 10%, #ffd9a8 20%, #cfc6b4 32%,
-    #b9c9d6 42%, #eef6ff 50%, #b9c9d6 58%,
-    #cfc6b4 68%, #ffd9a8 80%, #fffaf2 90%, #cfc6b4 100%);
-  background-size:260% 100%;
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-  text-shadow:0 0 60px rgba(255,180,120,.16);
-  animation:amalgam-shift 9s linear infinite;
-}
-@keyframes amalgam-shift{
-  0%{ background-position:0% 50%; }
-  100%{ background-position:260% 50%; }
+  color:transparent;
+  opacity:0;
 }
 @media (prefers-reduced-motion: reduce){
-  .hero h1{ animation:none; }
+  .hero-title-particles{ display:none; }
+  .hero h1{ opacity:1; color:#f4efe4; }
 }
 .hero-tagline{
   margin-top:22px; max-width:640px;
