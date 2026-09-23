@@ -124,49 +124,16 @@
     requestAnimationFrame(tick);
   }
 
-  /* ---------------- Experience: auto-rotating visual crossfade ---------------- */
+  /* ---------------- Experience: the switch lights up the sculpture ---------------- */
   function initExperience(){
-    var visual = document.querySelector(".exp-visual");
-    if(!visual) return;
-    var layers = visual.querySelectorAll(".exp-layer");
-    var dots = visual.querySelectorAll(".exp-progress button");
-    var steps = layers.length;
-    var idx = 0;
-    var timer = null;
-    var INTERVAL = 4800;
-
-    function show(i){
-      idx = (i + steps) % steps;
-      layers.forEach(function(l, n){ l.classList.toggle("is-active", n === idx); });
-      dots.forEach(function(d, n){ d.classList.toggle("is-active", n === idx); });
-      document.dispatchEvent(new CustomEvent("refraction:warmth", { detail: idx / Math.max(steps-1,1) }));
-    }
-    function next(){ show(idx + 1); }
-    function start(){
-      stop();
-      timer = window.setInterval(next, INTERVAL);
-    }
-    function stop(){
-      if(timer){ window.clearInterval(timer); timer = null; }
-    }
-
-    dots.forEach(function(d, n){
-      d.addEventListener("click", function(){ show(n); start(); });
+    var section = document.querySelector(".experience");
+    var sw = section && section.querySelector(".exp-switch");
+    if(!sw) return;
+    sw.addEventListener("click", function(){
+      var on = !section.classList.contains("is-on");
+      section.classList.toggle("is-on", on);
+      sw.setAttribute("aria-pressed", on ? "true" : "false");
     });
-    visual.addEventListener("mouseenter", stop);
-    visual.addEventListener("mouseleave", start);
-
-    if(!("IntersectionObserver" in window)){
-      show(0); start();
-      return;
-    }
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(entry.isIntersecting){ start(); } else { stop(); }
-      });
-    }, { threshold:0.2 });
-    io.observe(visual);
-    show(0);
   }
 
   /* ---------------- Teaser: lite YouTube embed ---------------- */

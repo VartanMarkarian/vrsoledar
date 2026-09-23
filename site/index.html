@@ -12,7 +12,7 @@
 <meta property="og:description" content="Інтерактивний VR-проєкт про пам'ять, втрату та присутність. Створено на основі особистого досвіду перебування у Соледарі." />
 <meta property="og:image" content="img/poster-ua.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="stylesheet" href="css/style.css?v=15" />
+<link rel="stylesheet" href="css/style.css?v=17" />
 </head>
 <body>
 
@@ -127,24 +127,22 @@
     </div>
   </section>
 
-  <!-- ================= EXPERIENCE (cave -> city) ================= -->
-  <section class="experience pad" id="experience">
-    <div class="container">
-      <div class="exp-grid">
+  <!-- ================= EXPERIENCE (interactive: switch lights the sculpture) ================= -->
+  <section class="experience" id="experience">
+    <div class="exp-stage">
 
-        <div class="exp-visual reveal">
-          <div class="exp-layer is-active" id="exp-l1"></div>
-          <div class="exp-layer" id="exp-l2"></div>
-          <div class="exp-layer" id="exp-l3"></div>
-          <div class="exp-layer" id="exp-l4"></div>
-          <div class="exp-progress">
-            <button type="button" class="is-active" aria-label="1"></button>
-            <button type="button" aria-label="2"></button>
-            <button type="button" aria-label="3"></button>
-            <button type="button" aria-label="4"></button>
-          </div>
-          <div class="exp-hint"><span data-lang="ua">Печери → місто</span><span data-lang="en">Caves → city</span></div>
+        <div class="exp-gnome" aria-hidden="true">
+          <img class="exp-gnome-off" src="img/exp/gnome-off.jpg" alt="" loading="lazy" />
+          <img class="exp-gnome-on" src="img/exp/gnome-on.jpg" alt="" loading="lazy" />
         </div>
+
+        <div class="exp-body">
+          <button class="exp-switch" type="button" aria-pressed="false">
+            <span class="visually-hidden" data-lang="ua">Вимикач світла</span>
+            <span class="visually-hidden" data-lang="en">Light switch</span>
+            <img class="exp-switch-off" src="img/exp/switch-off.jpg" alt="" loading="lazy" />
+            <img class="exp-switch-on" src="img/exp/switch-on.jpg" alt="" loading="lazy" />
+          </button>
 
         <div class="exp-text">
           <span class="eyebrow" data-lang="ua">VR-досвід</span>
@@ -162,8 +160,8 @@
             <p>The project does not document destruction literally. It is an attempt to speak about the city not as a lost object, but as a living memory that continues to exist through people, their voices, archives and imagination.</p>
           </div>
         </div>
+        </div>
 
-      </div>
     </div>
   </section>
 
@@ -440,6 +438,6 @@
   </div>
 </div>
 
-<script src="js/main.js?v=10"></script>
+<script src="js/main.js?v=11"></script>
 </body>
 </html>
