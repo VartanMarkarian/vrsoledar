@@ -512,34 +512,7 @@
     }
   }
 
-  /* ---------------- Hero right-edge shade: starts 150px after the "N" of the EN title ---------------- */
-  function initHeroEdgeShade(){
-    var hero = document.querySelector(".hero");
-    var wrap = document.getElementById("hero-title-wrap");
-    if(!hero || !wrap) return;
-    var GAP_AFTER_N = 150;
-    var measureCtx = document.createElement("canvas").getContext("2d");
-
-    function update(){
-      var h1 = wrap.querySelector("h1");
-      if(!h1) return;
-      var cs = getComputedStyle(h1);
-      measureCtx.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
-      try{ measureCtx.letterSpacing = cs.letterSpacing; }catch(e){}
-      var enWidth = measureCtx.measureText("REFRACTION").width;
-      var heroWidth = hero.clientWidth;
-      var fadeStart = heroWidth / 2 + enWidth / 2 + GAP_AFTER_N;
-      hero.style.setProperty("--hero-right-fade", Math.max(0, Math.round(heroWidth - fadeStart)) + "px");
-    }
-
-    var t;
-    window.addEventListener("resize", function(){ clearTimeout(t); t = setTimeout(update, 150); });
-    if(document.fonts && document.fonts.ready){ document.fonts.ready.then(update); }
-    update();
-  }
-
   document.addEventListener("DOMContentLoaded", function(){
-    initHeroEdgeShade();
     initLang();
     initHeader();
     initReveal();

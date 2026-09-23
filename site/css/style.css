@@ -244,6 +244,16 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   background:url('../img/bg/cave-hero.jpg') center 50% / cover no-repeat;
   animation:hero-drift 26s ease-in-out infinite alternate;
 }
+/* right side: the same photo at higher exposure, revealed through a soft mask,
+   so the lit rock gets brighter while shadows keep their depth */
+.hero-bg::after{
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:inherit;
+  animation:none;
+  filter:brightness(1.75) saturate(1.25) contrast(1.05);
+  -webkit-mask-image:radial-gradient(ellipse 52% 68% at 80% 42%, #000 0%, rgba(0,0,0,.65) 40%, transparent 74%);
+          mask-image:radial-gradient(ellipse 52% 68% at 80% 42%, #000 0%, rgba(0,0,0,.65) 40%, transparent 74%);
+}
 @keyframes hero-drift{
   from{ transform:scale(1.04) translate3d(0,0,0); }
   to{ transform:scale(1.10) translate3d(-1%,-1%,0); }
@@ -259,9 +269,8 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   background:
     /* left edge: starts at 90% black and fades out over ~150px */
     linear-gradient(90deg, rgba(0,0,0,.9) 0, rgba(0,0,0,.55) 55px, rgba(0,0,0,.2) 110px, transparent 150px),
-    /* right edge: 60% black, fading out 150px after the "N" of REFRACTION (--hero-right-fade set in JS) */
-    linear-gradient(270deg, rgba(0,0,0,.6) 0, rgba(0,0,0,.37) calc(var(--hero-right-fade, 0px) * .37), rgba(0,0,0,.13) calc(var(--hero-right-fade, 0px) * .73), transparent var(--hero-right-fade, 0px)),
-    radial-gradient(ellipse 85% 80% at 50% 42%, transparent 50%, rgba(0,0,0,.28) 78%, rgba(0,0,0,.55) 100%);
+    /* vignette centred right of middle, so the right side stays open and bright */
+    radial-gradient(ellipse 85% 80% at 62% 42%, transparent 50%, rgba(0,0,0,.28) 78%, rgba(0,0,0,.55) 100%);
 }
 .hero-content{
   grid-row:3; align-self:end;
