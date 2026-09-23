@@ -240,23 +240,28 @@
     var DPR = Math.min(window.devicePixelRatio || 1, 2);
     var PALETTE = ["#fffaf2", "#ffd9a8", "#eef6ff", "#cfc6b4", "#b9c9d6"];
 
-    var SPRING = 0.055;
-    var DAMPING = 0.90;
-    var REPEL_RADIUS = 78;
-    var REPEL_FORCE = 3.1;
-    var JITTER = 0.55;
+    // soft spring + strong damping: particles drift back without bouncing
+    var SPRING = 0.012;
+    var DAMPING = 0.83;
+    var REPEL_RADIUS = 100;
+    var REPEL_FORCE = 1.35;
+    var LIFT = 0.35;       // pushed particles rise a little, like dust in air
+    var FLOAT_AMP = 0.4;   // barely visible idle wandering around the home point, px
+    var FLOAT_SPEED = 0.35;
+    var DRAFT = 0.06;      // particles get carried along the cursor's motion, like a breath of air
 
     // Reflection (mirror below the title, like a water surface)
     var REFL_GAP = 6;
     var REFL_SQUASH = 0.72;
     var REFL_ALPHA = 0.55;
-    var REFL_SPRING = 0.04;
-    var REFL_DAMPING = 0.92;
+    var REFL_SPRING = 0.009;
+    var REFL_DAMPING = 0.84;
 
     var particles = [];
     var running = false;
     var raf = null;
     var mouseX = -9999, mouseY = -9999;
+    var mouseVX = 0, mouseVY = 0;
     var canvasRect = null;
     var field = { pad:0, w:0, reflTop:0, reflH:0 };
 
@@ -372,8 +377,8 @@
       // autonomous "ghost cursor" that keeps wandering through the reflection
       var ghostR = REPEL_RADIUS * 0.9;
       var ghostR2 = ghostR * ghostR;
-      var ghostX = field.pad + field.w * (0.5 + 0.47 * Math.sin(t * 0.37 + Math.sin(t * 0.11) * 1.6));
-      var ghostY = field.reflTop + field.reflH * (0.4 + 0.35 * Math.sin(t * 0.83));
+      var ghostX = field.pad + field.w * (0.5 + 0.47 * Math.sin(t * 0.22 + Math.sin(t * 0.07) * 1.6));
+      var ghostY = field.reflTop + field.reflH * (0.4 + 0.3 * Math.sin(t * 0.5));
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
@@ -383,10 +388,11 @@
         var p = particles[idx];
         var spring = p.refl ? REFL_SPRING : SPRING;
 
-        var fx = (p.hx - p.x) * spring;
-        var fy = (p.hy - p.y) * spring;
-        fx += Math.cos(t * p.jf + p.ph) * JITTER * 0.03;
-        fy += Math.sin(t * p.jf * 0.85 + p.ph) * JITTER * 0.03;
+        // home point slowly floats, so the text breathes instead of sitting still
+        var tx = p.hx + Math.cos(t * FLOAT_SPEED * p.jf * 2 + p.ph) * FLOAT_AMP;
+        var ty = p.hy + Math.sin(t * FLOAT_SPEED * p.jf * 1.7 + p.ph) * FLOAT_AMP;
+        var fx = (tx - p.x) * spring;
+        var fy = (ty - p.y) * spring;
 
         var dx = p.x - localMouseX, dy = p.y - localMouseY;
         var d2 = dx * dx + dy * dy;
@@ -394,8 +400,8 @@
           var d = Math.sqrt(d2) || 0.001;
           var force = 1 - d / REPEL_RADIUS;
           force = force * force * REPEL_FORCE;
-          fx += (dx / d) * force;
-          fy += (dy / d) * force;
+          fx += (dx / d) * force + mouseVX * force * DRAFT;
+          fy += (dy / d) * force - force * LIFT + mouseVY * force * DRAFT;
         }
 
         if(p.refl){
@@ -404,7 +410,7 @@
           if(gd2 < ghostR2){
             var gd = Math.sqrt(gd2) || 0.001;
             var gforce = 1 - gd / ghostR;
-            gforce = gforce * gforce * REPEL_FORCE * 0.85;
+            gforce = gforce * gforce * REPEL_FORCE * 0.8;
             fx += (gdx / gd) * gforce;
             fy += (gdy / gd) * gforce;
           }
@@ -421,7 +427,7 @@
         if(p.refl){
           twinkle *= p.fade;
           // gentle water ripple, stronger further from the title
-          drawX += Math.sin(p.hy * 0.11 + t * 2.1) * (0.6 + (p.hy - field.reflTop) * 0.05);
+          drawX += Math.sin(p.hy * 0.11 + t * 1.3) * (0.6 + (p.hy - field.reflTop) * 0.05);
         }
         ctx.globalAlpha = twinkle;
         ctx.fillStyle = p.color;
@@ -433,6 +439,7 @@
 
     function loop(){
       draw(performance.now() * 0.001);
+      mouseVX *= 0.88; mouseVY *= 0.88;
       if(running){ raf = requestAnimationFrame(loop); }
     }
     function start(){
@@ -448,9 +455,14 @@
     }
 
     document.addEventListener("pointermove", function(e){
+      if(mouseX > -9000){
+        var MAX_V = 30;
+        mouseVX = mouseVX * 0.6 + Math.max(-MAX_V, Math.min(MAX_V, e.clientX - mouseX)) * 0.4;
+        mouseVY = mouseVY * 0.6 + Math.max(-MAX_V, Math.min(MAX_V, e.clientY - mouseY)) * 0.4;
+      }
       mouseX = e.clientX; mouseY = e.clientY;
     }, { passive:true });
-    document.addEventListener("pointerleave", function(){ mouseX = -9999; mouseY = -9999; });
+    document.addEventListener("pointerleave", function(){ mouseX = -9999; mouseY = -9999; mouseVX = 0; mouseVY = 0; });
     document.addEventListener("scroll", function(){ canvasRect = null; }, { passive:true });
 
     document.addEventListener("refraction:lang-changed", function(){
