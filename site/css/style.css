@@ -532,7 +532,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 /* game-style sweep of light across the plate, clipped to its shape */
 .exp-switch::after{
   content:''; position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(115deg, transparent 44.5%, rgba(255,230,200,.18) 48%, rgba(255,255,255,.42) 50%, rgba(255,230,200,.18) 52%, transparent 55.5%) no-repeat;
+  background:linear-gradient(115deg, transparent 43%, rgba(255,230,200,.26) 47.5%, rgba(255,255,255,.62) 50%, rgba(255,230,200,.26) 52.5%, transparent 57%) no-repeat;
   background-size:260% 100%;
   background-position:130% 0;
   -webkit-mask:url('../img/exp/switch-off.webp') center / contain no-repeat;
