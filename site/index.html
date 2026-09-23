@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="uk" data-active-lang="ua">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ВІДДЗЕРКАЛЕННЯ / REFRACTION — VR-проєкт про пам'ять Соледара</title>
+<meta name="description" content="«Віддзеркалення» — інтерактивний VR-проєкт про пам'ять, втрату та присутність, створений на основі особистого досвіду перебування у Соледарі, архівних матеріалів та спогадів людей, чиє життя було пов'язане з містом." />
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="ВІДДЗЕРКАЛЕННЯ / REFRACTION" />
+<meta property="og:title" content="ВІДДЗЕРКАЛЕННЯ / REFRACTION — VR-проєкт про пам'ять Соледара" />
+<meta property="og:description" content="Інтерактивний VR-проєкт про пам'ять, втрату та присутність. Створено на основі особистого досвіду перебування у Соледарі." />
+<meta property="og:image" content="img/poster-ua.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="stylesheet" href="css/style.css?v=1" />
+</head>
+<body>
+
+<canvas id="bg-particles" aria-hidden="true"></canvas>
+
+<!-- ================= HEADER ================= -->
+<header class="site-header">
+  <a href="index.html" class="brand">
+    <strong data-lang="ua">ВІДДЗЕРКАЛЕННЯ</strong>
+    <strong data-lang="en">REFRACTION</strong>
+    <span class="sub" data-lang="ua">VR · Соледар</span>
+    <span class="sub" data-lang="en">VR · Soledar</span>
+  </a>
+
+  <nav class="site-nav">
+    <a href="#about"><span data-lang="ua">Про проєкт</span><span data-lang="en">About</span></a>
+    <a href="#experience"><span data-lang="ua">VR-досвід</span><span data-lang="en">Experience</span></a>
+    <a href="#artifacts"><span data-lang="ua">Артефакти</span><span data-lang="en">Artifacts</span></a>
+    <a href="#team"><span data-lang="ua">Команда</span><span data-lang="en">Team</span></a>
+    <a href="istoriya.html"><span data-lang="ua">Історія</span><span data-lang="en">Story</span></a>
+  </nav>
+
+  <div class="header-tools">
+    <div class="lang-toggle">
+      <button type="button" data-set-lang="ua" class="is-active">UA</button>
+      <button type="button" data-set-lang="en">EN</button>
+    </div>
+    <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div class="mobile-nav">
+  <a href="#about"><span data-lang="ua">Про проєкт</span><span data-lang="en">About</span></a>
+  <a href="#experience"><span data-lang="ua">VR-досвід</span><span data-lang="en">Experience</span></a>
+  <a href="#artifacts"><span data-lang="ua">Артефакти</span><span data-lang="en">Artifacts</span></a>
+  <a href="#team"><span data-lang="ua">Команда</span><span data-lang="en">Team</span></a>
+  <a href="#thanks"><span data-lang="ua">Подяка</span><span data-lang="en">Thanks</span></a>
+  <a href="istoriya.html"><span data-lang="ua">Історія</span><span data-lang="en">Story</span></a>
+</div>
+
+<main>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-kicker"><span class="dot"></span>
+        <span data-lang="ua">Інтерактивний VR-проєкт</span>
+        <span data-lang="en">Interactive VR project</span>
+      </div>
+      <h1 data-lang="ua">Віддзеркалення</h1>
+      <h1 data-lang="en">Refraction</h1>
+      <p class="hero-tagline" data-lang="ua">Проєкт про пам'ять, втрату та присутність, створений на основі особистого досвіду перебування у Соледарі, архівних матеріалів та спогадів людей, чиє життя було пов'язане з містом і навколишніми громадами.</p>
+      <p class="hero-tagline" data-lang="en">A project about memory, loss and presence, created from personal experience in Soledar, archival materials, and the memories of people whose lives were tied to the city and its surrounding communities.</p>
+      <div class="hero-meta">
+        <span data-lang="ua">Соледар, Донеччина</span><span data-lang="en">Soledar, Donetsk region</span>
+        <span>Мистецький арсенал · ІЗОЛЯЦІЯ</span>
+        <span><b>2026</b></span>
+      </div>
+    </div>
+    <div class="scroll-cue">
+      <span data-lang="ua">Гортайте</span><span data-lang="en">Scroll</span>
+      <span class="line"></span>
+    </div>
+  </section>
+
+  <!-- ================= ABOUT ================= -->
+  <section class="about pad" id="about">
+    <div class="container about-grid">
+      <div class="about-text reveal">
+        <span class="eyebrow" data-lang="ua">Опис проєкту</span>
+        <span class="eyebrow" data-lang="en">About the project</span>
+
+        <div data-lang="ua">
+          <p>«Віддзеркалення» – це інтерактивний VR-проєкт про пам'ять Соледара, створений на основі особистих спогадів, архівних матеріалів та історій людей, пов'язаних із містом і навколишніми громадами.</p>
+          <p>Проєкт не є реконструкцією міста. Натомість він створює фрагментарний цифровий простір, побудований за логікою сну та колективної пам'яті. Глядач потрапляє у стилізовані підземні середовища, натхненні соляними та гіпсовими шахтами Соледара, де взаємодіє з об'єктами, світлом, архівними відео, звуками та цифровими скульптурами.</p>
+          <p>У VR-простір інтегруються спогади вимушено переміщених людей, голосові історії, архівні фотографії та об'єкти, створені під час партисипативних воркшопів і надалі оцифровані у 3D.</p>
+          <p>«Віддзеркалення» досліджує пам'ять як форму присутності та пропонує безпечний спосіб взаємодії з досвідом втрати – через образ, звук, світло і колективне переживання.</p>
+        </div>
+        <div data-lang="en">
+          <p>"Refraction" is an interactive VR project about the memory of Soledar, created from personal recollections, archival materials, and the stories of people connected to the city and the surrounding communities.</p>
+          <p>The project is not a reconstruction of the city. Instead, it builds a fragmentary digital space structured by the logic of dreams and collective memory. Visitors enter stylised underground environments inspired by Soledar's salt and gypsum mines, where they interact with objects, light, archival footage, sound and digital sculptures.</p>
+          <p>Memories of forcibly displaced people, voice stories, archival photographs, and objects created during participatory workshops and later digitised in 3D are woven into the VR space.</p>
+          <p>"Refraction" explores memory as a form of presence and offers a safe way of engaging with the experience of loss — through image, sound, light, and collective feeling.</p>
+        </div>
+
+        <div class="about-credit">
+          <span class="role" data-lang="ua">Авторка проєкту та режисерка</span>
+          <span class="role" data-lang="en">Created and Directed by</span>
+          <span class="name">Роксолана Дудка <span data-lang="en">/ Roksolana Dudka</span></span>
+        </div>
+      </div>
+
+      <div class="about-poster reveal">
+        <img src="img/poster-ua.jpg" alt="Постер «Віддзеркалення»" data-lang="ua" />
+        <img src="img/poster-en.jpg" alt="Refraction poster" data-lang="en" />
+        <span class="tag" data-lang="ua">VR-проєкт</span>
+        <span class="tag" data-lang="en">VR project</span>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="quote-block reveal">
+        <p data-lang="ua">Спроба побачити місто таким, яким воно збереглося в пам'яті людей: фрагментарним, особистим, крихким, але живим.</p>
+        <p data-lang="en">"Refraction" explores the city through distortion rather than direct reflection — a refracted memory, shaped by loss, transformation, and the passage through physical, digital, and virtual states.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TEASER ================= -->
+  <section class="teaser pad" id="teaser">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow" data-lang="ua">Тизер</span>
+        <span class="eyebrow" data-lang="en">Teaser</span>
+        <h2 data-lang="ua">Перший погляд у простір пам'яті</h2>
+        <h2 data-lang="en">A first look into the space of memory</h2>
+        <p data-lang="ua">Короткий відеотизер VR-досвіду «Віддзеркалення».</p>
+        <p data-lang="en">A short video teaser of the "Refraction" VR experience.</p>
+      </div>
+
+      <div class="video-embed reveal" data-yt-id="gUtgxPe5Ew0">
+        <img class="video-embed-thumb" src="https://img.youtube.com/vi/gUtgxPe5Ew0/maxresdefault.jpg" alt="Тизер «Віддзеркалення»" loading="lazy" />
+        <button class="video-embed-play" type="button" aria-label="Play teaser video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXPERIENCE (cave -> city) ================= -->
+  <section class="experience pad" id="experience">
+    <div class="container">
+      <div class="exp-grid">
+
+        <div class="exp-visual reveal">
+          <div class="exp-layer is-active" id="exp-l1"></div>
+          <div class="exp-layer" id="exp-l2"></div>
+          <div class="exp-layer" id="exp-l3"></div>
+          <div class="exp-layer" id="exp-l4"></div>
+          <div class="exp-progress">
+            <button type="button" class="is-active" aria-label="1"></button>
+            <button type="button" aria-label="2"></button>
+            <button type="button" aria-label="3"></button>
+            <button type="button" aria-label="4"></button>
+          </div>
+          <div class="exp-hint"><span data-lang="ua">Печери → місто</span><span data-lang="en">Caves → city</span></div>
+        </div>
+
+        <div class="exp-text">
+          <span class="eyebrow" data-lang="ua">VR-досвід</span>
+          <span class="eyebrow" data-lang="en">The VR experience</span>
+          <div data-lang="ua">
+            <p>Глядач потрапляє у підземний простір, натхненний соляними та гіпсовими шахтами Соледара. Це не буквальні копії печер чи виробничих зон, а стилізовані середовища, де геологія, світло, звук та цифрові об'єкти працюють як носії пам'яті.</p>
+            <p>У першій печері глядач взаємодіє з великою скульптурою-контуром, що активується лише через присутність людини. Світло з'являється як метафора пам'яті: простір і об'єкти існують доти, доки хтось пам'ятає про них.</p>
+            <p>Інші простори проєкту звертаються до ландшафтів гіпсових шахт, затоплених кар'єрів, солончаків і степів Донеччини — де відео у технології Gaussian Splatting фрагментуються та розсипаються, ніби нестабільні спогади.</p>
+            <p>Проєкт не документує руйнування буквально. Це спроба говорити про місто не як про втрачений об'єкт, а як про живу пам'ять, що продовжує існувати через людей, їхні голоси, архіви та уяву.</p>
+          </div>
+          <div data-lang="en">
+            <p>The visitor enters an underground space inspired by Soledar's salt and gypsum mines. These are not literal copies of caves or industrial zones, but stylised environments where geology, light, sound and digital objects function as carriers of memory.</p>
+            <p>In the first cave, the visitor interacts with a large contour sculpture that activates only through human presence. Light appears as a metaphor for memory: the space and its objects exist for as long as someone remembers them.</p>
+            <p>Other spaces of the project turn to the landscapes of gypsum mines, flooded quarries, salt marshes and steppes of the Donetsk region — where video captured with Gaussian Splatting technology fragments and scatters, like unstable memories.</p>
+            <p>The project does not document destruction literally. It is an attempt to speak about the city not as a lost object, but as a living memory that continues to exist through people, their voices, archives and imagination.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GALLERY / ARTIFACTS ================= -->
+  <section class="gallery pad" id="artifacts">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow" data-lang="ua">Історії артефактів</span>
+        <span class="eyebrow" data-lang="en">Artifact stories</span>
+        <h2 data-lang="ua">Об'єкти пам'яті</h2>
+        <h2 data-lang="en">Objects of memory</h2>
+        <p data-lang="ua">Кожна композиція у VR-просторі — фрагмент архіву, оцифрований спогад або колективно створений об'єкт. Натисніть, щоб роздивитися ближче.</p>
+        <p data-lang="en">Each composition in the VR space is a fragment of the archive, a digitised memory, or an object created collectively. Click to take a closer look.</p>
+      </div>
+
+      <div class="gallery-grid reveal-stagger">
+        <div class="gallery-item reveal" style="--i:0" data-n="01"
+             data-cap-ua="Полиця цифрових скульптур, створених учасниками воркшопів і оцифрованих у 3D."
+             data-cap-en="Shelf of digitised sculptures, made by workshop participants and scanned into 3D.">
+          <img src="img/gallery/shelf-figurines.jpg" alt="Полиця цифрових скульптур" loading="lazy" />
+          <div class="gallery-cap"><span class="n">01</span><span class="t" data-lang="ua">Полиця пам'яті</span><span class="t" data-lang="en">Shelf of memory</span><span class="gallery-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+
+        <div class="gallery-item reveal" style="--i:1" data-n="02"
+             data-cap-ua="Контурна скульптура-постать і охоронець тунелю в підземному просторі."
+             data-cap-en="A contour figure sculpture and a tunnel guardian in the underground space.">
+          <img src="img/gallery/statue-turtle.jpg" alt="Контурна постать і охоронець тунелю" loading="lazy" />
+          <div class="gallery-cap"><span class="n">02</span><span class="t" data-lang="ua">Постать і охоронець</span><span class="t" data-lang="en">Figure and guardian</span><span class="gallery-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+
+        <div class="gallery-item reveal" style="--i:2" data-n="03"
+             data-cap-ua="Каркасний монумент пам'яті, що постає серед чорного зоряного неба."
+             data-cap-en="A wireframe monument of memory, rising against a black, starlit sky.">
+          <img src="img/gallery/obelisk-sky.jpg" alt="Монумент пам'яті серед зірок" loading="lazy" />
+          <div class="gallery-cap"><span class="n">03</span><span class="t" data-lang="ua">Монумент серед зірок</span><span class="t" data-lang="en">Monument among the stars</span><span class="gallery-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+
+        <div class="gallery-item reveal" style="--i:3" data-n="04"
+             data-cap-ua="Церква та каркасний павільйон над потоком — день унизу, чорне небо вгорі."
+             data-cap-en="A church and a wireframe pavilion above a stream — daylight below, a black sky above.">
+          <img src="img/bg/pavilion-church.jpg" alt="Церква, павільйон і потік" loading="lazy" />
+          <div class="gallery-cap"><span class="n">04</span><span class="t" data-lang="ua">Церква і павільйон</span><span class="t" data-lang="en">Church and pavilion</span><span class="gallery-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+
+        <div class="gallery-item reveal" style="--i:4" data-n="05"
+             data-cap-ua="Зруйнована стіна, крізь яку проступає архівний пейзаж довоєнного міста."
+             data-cap-en="A ruined wall through which an archival landscape of the pre-war city emerges.">
+          <img src="img/gallery/ruin-landscape.jpg" alt="Зруйнована стіна з архівним пейзажем" loading="lazy" />
+          <div class="gallery-cap"><span class="n">05</span><span class="t" data-lang="ua">Стіна з пейзажем</span><span class="t" data-lang="en">Wall with a landscape</span><span class="gallery-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+
+        <div class="gallery-item reveal" style="--i:5" data-n="06"
+             data-cap-ua="Архівні кадри телепередачі та кінохроніки ДП «Артемсіль» на екрані камери."
+             data-cap-en="Archival TV footage and Artemsil chronicle material, playing on a camera screen.">
+          <img src="img/gallery/church-archive.jpg" alt="Архівні кадри на екрані" loading="lazy" />
+          <div class="gallery-cap"><span class="n">06</span><span class="t" data-lang="ua">Архів «Артемсіль»</span><span class="t" data-lang="en">Artemsil archive</span><span class="gallery-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+
+        <div class="gallery-item reveal" style="--i:6" data-n="07"
+             data-cap-ua="Каркасна будівля серед золотого пшеничного поля під зоряним небом."
+             data-cap-en="A wireframe building amid a golden wheat field under a starlit sky.">
+          <img src="img/bg/wheatfield-building.jpg" alt="Будівля серед пшеничного поля" loading="lazy" />
+          <div class="gallery-cap"><span class="n">07</span><span class="t" data-lang="ua">Поле і будівля</span><span class="t" data-lang="en">Field and building</span><span class="gallery-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+
+        <div class="gallery-item reveal" style="--i:7" data-n="08"
+             data-cap-ua="Світна контурна постать шахтаря у темряві підземного простору."
+             data-cap-en="A glowing contour figure of a miner in the darkness of the underground space.">
+          <img src="img/gallery/statue-closeup.jpg" alt="Контурна постать шахтаря" loading="lazy" />
+          <div class="gallery-cap"><span class="n">08</span><span class="t" data-lang="ua">Постать шахтаря</span><span class="t" data-lang="en">Figure of a miner</span><span class="gallery-plus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 5v14M5 12h14"/></svg></span></div>
+        </div>
+      </div>
+
+      <p class="gallery-note reveal">
+        <span data-lang="ua">Детальні історії кожного артефакта з'являться на сайті найближчим часом.</span>
+        <span data-lang="en">Detailed stories for each artifact will be added to the site soon.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= TEAM ================= -->
+  <section class="team pad" id="team">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow" data-lang="ua">Команда проєкту</span>
+        <span class="eyebrow" data-lang="en">Project team</span>
+        <h2 data-lang="ua">Хто створював «Віддзеркалення»</h2>
+        <h2 data-lang="en">Who made "Refraction"</h2>
+      </div>
+
+      <div class="team-grid reveal">
+        <div class="team-card">
+          <svg class="team-glyph" viewBox="0 0 40 40" fill="none" stroke="#ffbf8f" stroke-width="1.2"><path d="M20 3 L35 20 L20 37 L5 20 Z"/><path d="M20 3 L20 37 M5 20 L35 20"/></svg>
+          <span class="role" data-lang="ua">Авторка проєкту, режисерка та саунд-дизайн</span>
+          <span class="role" data-lang="en">Creator, Director &amp; Sound Design</span>
+          <span class="name">Роксолана Дудка<br/><span style="font-size:13px;color:var(--ink-faint)">Roksolana Dudka</span></span>
+        </div>
+        <div class="team-card">
+          <svg class="team-glyph" viewBox="0 0 40 40" fill="none" stroke="#ffbf8f" stroke-width="1.2"><path d="M20 3 L35 20 L20 37 L5 20 Z"/><path d="M20 3 L35 20 M20 37 L5 20"/></svg>
+          <span class="role" data-lang="ua">Арт-директор проєкту</span>
+          <span class="role" data-lang="en">Art Director</span>
+          <span class="name">Вартан Маркар'ян<br/><span style="font-size:13px;color:var(--ink-faint)">Vartan Markarian</span></span>
+        </div>
+        <div class="team-card">
+          <svg class="team-glyph" viewBox="0 0 40 40" fill="none" stroke="#ffbf8f" stroke-width="1.2"><circle cx="20" cy="20" r="16"/><path d="M20 4 v32 M4 20 h32"/></svg>
+          <span class="role" data-lang="ua">VR-розробка</span>
+          <span class="role" data-lang="en">VR Development</span>
+          <span class="name">Олексій Попов<br/><span style="font-size:13px;color:var(--ink-faint)">Oleksii Popov</span></span>
+        </div>
+        <div class="team-card">
+          <svg class="team-glyph" viewBox="0 0 40 40" fill="none" stroke="#ffbf8f" stroke-width="1.2"><path d="M8 24 Q20 4 32 24" /><path d="M8 24 Q20 34 32 24"/></svg>
+          <span class="role" data-lang="ua">Голос пам'яті</span>
+          <span class="role" data-lang="en">Voice of Memory</span>
+          <span class="name">Анна Тищук<br/><span style="font-size:13px;color:var(--ink-faint)">Anna Tyshchuk</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= THANKS / MATERIALS ================= -->
+  <section class="pad" id="thanks">
+    <div class="container thanks-grid">
+      <div class="thanks-col reveal">
+        <h3 data-lang="ua">Особлива подяка</h3>
+        <h3 data-lang="en">Special thanks</h3>
+        <ul data-lang="ua">
+          <li>Соледарській міській раді (Соледарська міська військова адміністрація)</li>
+          <li>Жителям Соледарської громади та учасникам воркшопів в м. Кам'янське, м. Дніпро та м. Київ</li>
+          <li>Наталі Тищук</li>
+          <li>Анні Тищук</li>
+          <li>Лощаковій Світлані</li>
+          <li>Теплюк Тетяні</li>
+          <li>Євгенії Костенко</li>
+          <li>Вартану Маркар'яну</li>
+        </ul>
+        <ul data-lang="en">
+          <li>Soledar City Council (Soledar City Military Administration)</li>
+          <li>Residents of the Soledar Community and participants of the workshops held in Kamianske, Dnipro, and Kyiv</li>
+          <li>Natalia Tyshchuk</li>
+          <li>Anna Tyshchuk</li>
+          <li>Svitlana Loshchakova</li>
+          <li>Tetiana Tepliuk</li>
+          <li>Yevheniia Hontar</li>
+          <li>Vartan Markarian</li>
+        </ul>
+      </div>
+
+      <div class="thanks-col reveal">
+        <h3 data-lang="ua">У проєкті використано</h3>
+        <h3 data-lang="en">Archival materials</h3>
+        <ul class="materials-list" data-lang="ua">
+          <li>Персональні архіви Роксолани Дудки з поїздки в 2021 році (в межах мистецької резиденції «Заземлення»).</li>
+          <li>Фрагмент випуску програми «Факти» національного телеканалу ICTV (2021). Авторка репортажу — Ольга Чайко, оператори — Віктор Зеленков, Сергій Марченко.</li>
+          <li>Фрагменти документального фільму «Фильм о ГП "Артемсоль"» (2014), опублікованого на офіційному YouTube-каналі ДП «Артемсіль».</li>
+        </ul>
+        <ul class="materials-list" data-lang="en">
+          <li>Personal archival materials documented by Roksolana Dudka during a research trip to Soledar in 2021, as part of the "Grounding" art residency.</li>
+          <li>Excerpts from the ICTV national television news programme "Facts" (2021). Report by Olga Chaiko; camera by Viktor Zelenkov and Serhii Marchenko.</li>
+          <li>Excerpts from the documentary "Film about the State Enterprise Artemsil" (2014), published on the official YouTube channel of the State Enterprise Artemsil.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CREDITS / PROGRAM ================= -->
+  <section class="credits pad" id="credits">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow" data-lang="ua">Про резиденцію</span>
+        <span class="eyebrow" data-lang="en">About the residency</span>
+        <h2 data-lang="ua">Спадщина: простір для роботи</h2>
+        <h2 data-lang="en">Heritage: Space for Work</h2>
+      </div>
+
+      <div class="credits-copy reveal">
+        <div data-lang="ua">
+          <p>Проєкт «Віддзеркалення» реалізований в межах резиденції «Спадщина. Практична робота», яка є частиною програми розвитку спроможності та мережування для локальних дієвців культури «Спадщина: простір для роботи» – спільної ініціативи для локальних діячів культури в Україні, зосередженої на переосмисленні культурної спадщини та зміцненні соціальної згуртованості.</p>
+          <p>Програма підтримується Програмою «Партнерство за сильну Україну» (PFRU), що фінансується урядами Великої Британії, Естонії, Канади, Норвегії, Фінляндії, Швейцарії та Швеції. Метою Програми є посилення стійкості України в умовах російської агресії шляхом надання критично важливої підтримки місцевим громадам у співпраці з українськими державними органами, громадянським суспільством, медіа та приватним сектором.</p>
+        </div>
+        <div data-lang="en">
+          <p>The VR experience "Refraction" was created as part of the "Heritage. Practical Work" Residency, within the capacity-building and networking programme "Heritage: Space for Work" — a collaborative initiative supporting local cultural practitioners in Ukraine through the reinterpretation of cultural heritage and the strengthening of social cohesion.</p>
+          <p>The programme is supported by the Partnership Fund for a Resilient Ukraine (PFRU), funded by the governments of the United Kingdom, Estonia, Canada, Norway, Finland, Switzerland, and Sweden. PFRU strengthens Ukraine's resilience in the context of russia's ongoing aggression by providing critical support to local communities in partnership with Ukrainian public institutions, civil society, media organisations, and the private sector.</p>
+        </div>
+
+        <ul class="implemented" data-lang="ua">
+          <li>Мистецький арсенал</li>
+          <li>Фонд ІЗОЛЯЦІЯ</li>
+          <li>Харківський літературний музей</li>
+          <li>Одеський національний художній музей</li>
+          <li>Центр сучасної культури у Дніпрі</li>
+        </ul>
+        <ul class="implemented" data-lang="en">
+          <li>Mystetskyi Arsenal</li>
+          <li>IZOLYATSIA Foundation</li>
+          <li>Kharkiv Literary Museum</li>
+          <li>Odesa National Fine Arts Museum</li>
+          <li>Center for Contemporary Culture in Dnipro</li>
+        </ul>
+
+        <p class="support-line" data-lang="ua">За сприяння Соледарської міської ради спільно з Програмою «Партнерство за сильну Україну».</p>
+        <p class="support-line" data-lang="en">With the support of the Soledar City Council, in partnership with the Partnership Fund for a Resilient Ukraine (PFRU).</p>
+
+        <div class="logo-strip">
+          <img src="img/logo-block.svg" alt="Партнери проєкту" />
+        </div>
+      </div>
+
+      <div class="history-cta reveal">
+        <div>
+          <h3 data-lang="ua">Від першої зустрічі до «Віддзеркалення»</h3>
+          <h3 data-lang="en">From a first encounter to "Refraction"</h3>
+          <p data-lang="ua">Особиста історія авторки — від мистецької резиденції «Заземлення» у 2021 році до створення VR-проєкту у 2025–2026.</p>
+          <p data-lang="en">The author's personal story — from the "Grounding" art residency in 2021 to the creation of this VR project in 2025–2026.</p>
+        </div>
+        <a class="btn" href="istoriya.html">
+          <span data-lang="ua">Читати історію</span>
+          <span data-lang="en">Read the story</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <strong data-lang="ua">ВІДДЗЕРКАЛЕННЯ</strong>
+        <strong data-lang="en">REFRACTION</strong>
+        <p data-lang="ua">Інтерактивний VR-проєкт про пам'ять, втрату та присутність.</p>
+        <p data-lang="en">An interactive VR project about memory, loss and presence.</p>
+      </div>
+      <div class="footer-links">
+        <div>
+          <h4 data-lang="ua">Розділи</h4>
+          <h4 data-lang="en">Sections</h4>
+          <a href="#about"><span data-lang="ua">Про проєкт</span><span data-lang="en">About</span></a>
+          <a href="#experience"><span data-lang="ua">VR-досвід</span><span data-lang="en">Experience</span></a>
+          <a href="#artifacts"><span data-lang="ua">Артефакти</span><span data-lang="en">Artifacts</span></a>
+          <a href="istoriya.html"><span data-lang="ua">Історія</span><span data-lang="en">Story</span></a>
+        </div>
+        <div>
+          <h4 data-lang="ua">Проєкт</h4>
+          <h4 data-lang="en">Project</h4>
+          <a href="#team"><span data-lang="ua">Команда</span><span data-lang="en">Team</span></a>
+          <a href="#thanks"><span data-lang="ua">Подяка</span><span data-lang="en">Thanks</span></a>
+          <a href="#credits"><span data-lang="ua">Резиденція</span><span data-lang="en">Residency</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span data-lang="ua">© 2026 «Віддзеркалення». Авторка — Роксолана Дудка.</span>
+      <span data-lang="en">© 2026 "Refraction". Author — Roksolana Dudka.</span>
+      <span data-lang="ua">Створено в межах резиденції «Спадщина: простір для роботи»</span>
+      <span data-lang="en">Created within the "Heritage: Space for Work" residency</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ================= LIGHTBOX ================= -->
+<div class="lightbox">
+  <div class="lightbox-frame">
+    <button class="lightbox-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <button class="lightbox-prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <button class="lightbox-next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M9 6l6 6-6 6"/></svg></button>
+    <img src="" alt="" />
+    <div class="lightbox-cap">
+      <span class="n"></span>
+      <p></p>
+    </div>
+  </div>
+</div>
+
+<script src="js/main.js?v=1"></script>
+</body>
+</html>
