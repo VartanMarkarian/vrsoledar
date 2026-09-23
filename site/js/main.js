@@ -263,10 +263,13 @@
       var rect = h1.getBoundingClientRect();
       var w = Math.max(1, Math.round(rect.width));
       var h = Math.max(1, Math.round(rect.height));
-      canvas.width = w * DPR;
-      canvas.height = h * DPR;
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
+      var PAD = Math.round(REPEL_RADIUS * 1.4);
+      canvas.width = (w + PAD * 2) * DPR;
+      canvas.height = (h + PAD * 2) * DPR;
+      canvas.style.width = (w + PAD * 2) + "px";
+      canvas.style.height = (h + PAD * 2) + "px";
+      canvas.style.left = (-PAD) + "px";
+      canvas.style.top = (-PAD) + "px";
       canvasRect = null;
 
       var off = document.createElement("canvas");
@@ -292,7 +295,7 @@
         for(var x = 0; x < w * DPR; x += step){
           var alpha = data[(y * w * DPR + x) * 4 + 3];
           if(alpha > 120){
-            var hx = x / DPR, hy = y / DPR;
+            var hx = x / DPR + PAD, hy = y / DPR + PAD;
             particles.push({
               hx: hx, hy: hy,
               x: hx, y: hy,
