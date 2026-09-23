@@ -229,6 +229,45 @@
     });
   }
 
+  /* ---------------- Hero title: liquid-mirror hover distortion ---------------- */
+  function initHeroDistort(){
+    var wrap = document.querySelector(".hero-title-wrap");
+    var disp = document.getElementById("hero-amalgam-disp");
+    if(!wrap || !disp) return;
+
+    var target = 0, current = 0, raf = null;
+
+    function loop(){
+      current += (target - current) * 0.08;
+      disp.setAttribute("scale", current.toFixed(1));
+      if(Math.abs(target - current) > 0.15){
+        raf = requestAnimationFrame(loop);
+      }else{
+        disp.setAttribute("scale", String(target));
+        raf = null;
+      }
+    }
+    function ensureLoop(){
+      if(!raf){ raf = requestAnimationFrame(loop); }
+    }
+
+    wrap.addEventListener("mouseenter", function(){
+      target = 50;
+      ensureLoop();
+    });
+    wrap.addEventListener("mousemove", function(e){
+      var r = wrap.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width;
+      var py = (e.clientY - r.top) / r.height;
+      target = 42 + Math.sin((px + py) * 6) * 16;
+      ensureLoop();
+    });
+    wrap.addEventListener("mouseleave", function(){
+      target = 0;
+      ensureLoop();
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function(){
     initLang();
     initHeader();
@@ -236,6 +275,7 @@
     initParticles();
     initExperience();
     initVideoEmbed();
+    initHeroDistort();
     initLightbox();
   });
 })();

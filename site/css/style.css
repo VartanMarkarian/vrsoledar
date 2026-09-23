@@ -236,7 +236,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 .hero::before{
   content:''; position:absolute; inset:0; z-index:1;
   background:
-    linear-gradient(180deg, rgba(3,3,4,.18) 0%, rgba(3,3,4,.06) 30%, rgba(4,4,5,.45) 68%, var(--bg) 100%);
+    linear-gradient(180deg, rgba(3,3,4,.15) 0%, rgba(3,3,4,.05) 24%, rgba(3,3,4,.5) 48%, rgba(2,2,3,.82) 66%, rgba(2,2,3,.96) 85%, var(--bg) 100%);
 }
 .hero::after{
   content:''; position:absolute; inset:0; z-index:1;
@@ -252,15 +252,32 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   display:flex; align-items:center; gap:10px;
 }
 .hero-kicker .dot{ width:6px; height:6px; border-radius:50%; background:var(--amber); box-shadow:0 0 12px 2px var(--amber); }
+.hero-title-wrap{
+  position:relative;
+  filter:url(#hero-amalgam);
+  cursor:default;
+}
 .hero h1{
   font-family:var(--font-display); font-weight:700;
   font-size:clamp(30px, 6.2vw, 82px);
   line-height:1.02; letter-spacing:-.005em;
   text-transform:uppercase;
   white-space:nowrap;
-  background:linear-gradient(180deg,#fffaf2 0%, #f4efe4 55%, #cfc6b4 100%);
+  background:linear-gradient(100deg,
+    #cfc6b4 0%, #fffaf2 10%, #ffd9a8 20%, #cfc6b4 32%,
+    #b9c9d6 42%, #eef6ff 50%, #b9c9d6 58%,
+    #cfc6b4 68%, #ffd9a8 80%, #fffaf2 90%, #cfc6b4 100%);
+  background-size:260% 100%;
   -webkit-background-clip:text; background-clip:text; color:transparent;
   text-shadow:0 0 60px rgba(255,180,120,.16);
+  animation:amalgam-shift 9s linear infinite;
+}
+@keyframes amalgam-shift{
+  0%{ background-position:0% 50%; }
+  100%{ background-position:260% 50%; }
+}
+@media (prefers-reduced-motion: reduce){
+  .hero h1{ animation:none; }
 }
 .hero-tagline{
   margin-top:22px; max-width:640px;
