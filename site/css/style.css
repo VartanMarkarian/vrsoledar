@@ -561,6 +561,11 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   .exp-body{ padding-left:calc(var(--exp-text-left) - 150px); }
   .exp-body .exp-text{ max-width:calc(var(--exp-text-w) + 150px); }
 }
+/* monitors larger than 17": text 75px wider (to the right), switch 50px further right */
+@media (min-width: 1681px){
+  .exp-body .exp-text{ max-width:calc(var(--exp-text-w) + 75px); }
+  .exp-switch{ left:max(var(--exp-text-left) + var(--exp-text-w) + 75px + 48px, 100% - var(--gutter) - var(--sw-w) - 150px); }
+}
 
 .exp-text{
   /* vertical centre between the 1st and 2nd line of the first paragraph (eyebrow + gap + one line) */
