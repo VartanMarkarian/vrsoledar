@@ -557,6 +557,9 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 @media (min-width: 981px) and (max-width: 1680px){
   .exp-gnome{ transform:scale(.8); transform-origin:0 50%; }
   .exp-switch{ --sw-w:calc(clamp(120px, 11vw, 170px) * .8); }
+  /* text 150px wider, grown to the left (the right side is taken by the switch) */
+  .exp-body{ padding-left:calc(var(--exp-text-left) - 150px); }
+  .exp-body .exp-text{ max-width:calc(var(--exp-text-w) + 150px); }
 }
 
 .exp-text{
