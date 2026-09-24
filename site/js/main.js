@@ -171,6 +171,7 @@
     var R = 0, S = 0, offset = 0, speedK = reduce ? 0 : 1;
     var active = -1, visible = false, raf = 0, last = 0;
     var zoom = items.map(function(){ return 1; });
+    var lastType = "";
 
     function layout(){
       var W = orbit.clientWidth;
@@ -232,9 +233,11 @@
     items.forEach(function(el, i){
       el.addEventListener("pointerenter", function(e){ if(e.pointerType === "mouse") setActive(i); });
       el.addEventListener("pointerleave", function(e){ if(e.pointerType === "mouse" && active === i) setActive(-1); });
-      // touch: tap to enlarge, tap again (or anywhere else) to let it go
+      // touch: tap to enlarge, tap again (or anywhere else) to let it go.
+      // The type comes from pointerdown: older Safari fires click as a plain MouseEvent.
+      el.addEventListener("pointerdown", function(e){ lastType = e.pointerType; });
       el.addEventListener("click", function(e){
-        if(e.pointerType === "mouse") return;
+        if(lastType === "mouse") return;
         e.stopPropagation();
         setActive(active === i ? -1 : i);
       });
