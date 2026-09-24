@@ -331,6 +331,88 @@
     } else { visible = true; kick(); }
   }
 
+  /* ---------------- Team cards: hand-drawn wireframe boxes (like the VR scene and the mine cart) ---------------- */
+  function initWireFrames(){
+    var cards = Array.prototype.slice.call(document.querySelectorAll(".team-card"));
+    if(!cards.length) return;
+    var NS = "http://www.w3.org/2000/svg";
+    var M = 28;                                    // room around the card for overshooting lines and the depth box
+
+    function rng(seed){                            // small deterministic PRNG, so each card keeps its own sketch
+      return function(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    }
+
+    function draw(card, idx){
+      var old = card.querySelector(".wf");
+      if(old) old.remove();
+      var W = card.offsetWidth, H = card.offsetHeight;
+      if(!W || !H) return;
+      var r = rng(idx * 7919 + 17);
+      var svg = document.createElementNS(NS, "svg");
+      svg.setAttribute("class", "wf");
+      svg.setAttribute("aria-hidden", "true");
+      svg.setAttribute("width", W + M * 2);
+      svg.setAttribute("height", H + M * 2);
+      var n = 0;
+      function line(x1, y1, x2, y2, cls){
+        var l = document.createElementNS(NS, "line");
+        l.setAttribute("x1", x1.toFixed(1)); l.setAttribute("y1", y1.toFixed(1));
+        l.setAttribute("x2", x2.toFixed(1)); l.setAttribute("y2", y2.toFixed(1));
+        l.setAttribute("pathLength", "1");
+        l.setAttribute("class", cls);
+        l.style.setProperty("--d", (n++ * 0.035).toFixed(2) + "s");
+        svg.appendChild(l);
+      }
+      // an edge that runs past both corners, drawn twice with a slight wobble, like a quick technical sketch
+      function edge(x1, y1, x2, y2, cls, twice){
+        var dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx * dx + dy * dy) || 1;
+        var ux = dx / len, uy = dy / len;
+        var a = 3 + r() * 12, b = 3 + r() * 12;
+        line(x1 - ux * a, y1 - uy * a, x2 + ux * b, y2 + uy * b, cls);
+        if(twice){
+          var j = function(){ return (r() - 0.5) * 2.4; };
+          line(x1 - ux * a * 0.4 + j(), y1 - uy * a * 0.4 + j(), x2 + ux * b * 0.6 + j(), y2 + uy * b * 0.6 + j(), cls + " wf-thin");
+        }
+      }
+      var L = M, T = M, R = M + W, B = M + H;
+      // back face of the box: up and to the right, a touch smaller -> perspective depth
+      var dx = 14 + r() * 8, dy = -(14 + r() * 8), k = 0.035;
+      var bL = L + W * k + dx, bR = R - W * k + dx, bT = T + H * k + dy, bB = B - H * k + dy;
+
+      edge(bL, bT, bR, bT, "wf-back", false);
+      edge(bR, bT, bR, bB, "wf-back", false);
+      edge(bL, bT, bL, bB, "wf-back wf-dash", false);
+      edge(bL, bB, bR, bB, "wf-back wf-dash", false);
+      edge(L, T, bL, bT, "wf-back", false);
+      edge(R, T, bR, bT, "wf-back", false);
+      edge(R, B, bR, bB, "wf-back", false);
+      edge(L, B, bL, bB, "wf-back wf-dash", false);
+
+      edge(L, T, R, T, "wf-front", true);
+      edge(R, T, R, B, "wf-front", true);
+      edge(L, B, R, B, "wf-front", true);
+      edge(L, T, L, B, "wf-front", true);
+      // an inner frame on two sides, like the thick frames round the paintings in the VR scene
+      var i = 7;
+      edge(L + i, T + i, L + i, B - i, "wf-inner", false);
+      edge(L + i, B - i, R - i, B - i, "wf-inner", false);
+      // one long construction line across the lower part of the card
+      var y = T + H * (0.3 + r() * 0.12);
+      line(L - 18 - r() * 10, y, R + 10 + r() * 16, y + (r() - 0.5) * 6, "wf-back wf-dash");
+
+      card.insertBefore(svg, card.firstChild);
+    }
+
+    function drawAll(){ cards.forEach(draw); }
+    drawAll();
+    var t;
+    window.addEventListener("resize", function(){
+      clearTimeout(t);
+      t = setTimeout(function(){ document.documentElement.classList.add("wf-drawn"); drawAll(); }, 150);
+    });
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+  }
+
   /* ---------------- Hero title: living particle field (spring physics + cursor repulsion) ---------------- */
   function initHeroParticles(){
     var wrap = document.getElementById("hero-title-wrap");
@@ -729,5 +811,6 @@
     initHeroParticles();
     initQuoteParticles();
     initOrbit();
+    initWireFrames();
   });
 })();

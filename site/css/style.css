@@ -660,14 +660,14 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
    =========================================================== */
 .team{ background:var(--panel); border-top:1px solid var(--panel-line); border-bottom:1px solid var(--panel-line); }
 .team-grid{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
-  background:var(--panel-line);
-  border:1px solid var(--panel-line);
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:clamp(34px, 3.4vw, 48px);
+  padding:28px 22px 12px 8px;           /* room for the wireframe boxes that reach past each card */
 }
 .team-card{
-  background:var(--panel); padding:34px 24px; text-align:left;
+  padding:34px 24px; text-align:left;
   display:flex; flex-direction:column; gap:18px; min-height:220px; justify-content:flex-end;
-  position:relative; overflow:hidden;
+  position:relative;
 }
 .team-glyph{ width:34px; height:34px; opacity:.85; }
 .team-card .role{
@@ -676,12 +676,31 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 .team-card .name{
   font-family:var(--font-display); font-size:19px; margin-top:6px; color:var(--ink);
 }
-.team-card::before{
-  content:''; position:absolute; left:0; top:0; right:0; height:2px;
-  background:linear-gradient(90deg, var(--amber-soft), transparent);
-  transform:scaleX(0); transform-origin:left; transition:transform .5s var(--ease);
+/* hand-drawn wireframe box around each card (built in JS): cold white lines, like the VR scene */
+.team-card .wf{
+  position:absolute; left:-28px; top:-28px; pointer-events:none; overflow:visible;
+  filter:drop-shadow(0 0 2px rgba(170,205,255,.45));
+  transition:filter .5s ease;
 }
-.team-card:hover::before{ transform:scaleX(1); }
+.wf line{
+  fill:none; stroke-linecap:round;
+  stroke-dasharray:1; stroke-dashoffset:1;   /* drawn in once the grid is revealed */
+}
+.wf .wf-front{ stroke:rgba(225,236,255,.78); stroke-width:1.3; }
+.wf .wf-thin{ stroke:rgba(225,236,255,.4); stroke-width:.8; }
+.wf .wf-back{ stroke:rgba(200,218,255,.38); stroke-width:1; }
+.wf .wf-inner{ stroke:rgba(225,236,255,.28); stroke-width:1; }
+.team-grid.is-in .wf line{ animation:wf-draw .9s var(--ease) forwards; animation-delay:var(--d); }
+.team-grid.is-in .wf .wf-dash{ animation-name:wf-draw-dash; }
+@keyframes wf-draw{ to{ stroke-dashoffset:0; } }
+@keyframes wf-draw-dash{ 0%{ stroke-dasharray:.012 .018; stroke-dashoffset:1; opacity:0; } 100%{ stroke-dasharray:.012 .018; stroke-dashoffset:0; opacity:1; } }
+.wf-drawn .team-grid .wf line{ animation:none; stroke-dashoffset:0; }
+.wf-drawn .team-grid .wf .wf-dash{ stroke-dasharray:.012 .018; }
+.team-card:hover .wf{ filter:drop-shadow(0 0 3px rgba(170,205,255,.8)) brightness(1.35); }
+@media (prefers-reduced-motion: reduce){
+  .team-grid .wf line{ animation:none !important; stroke-dashoffset:0; }
+  .team-grid .wf .wf-dash{ stroke-dasharray:.012 .018; }
+}
 
 /* ===========================================================
    THANKS / MATERIALS
