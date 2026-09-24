@@ -165,7 +165,7 @@
     var STEP = Math.PI * 2 / N;          // equal spacing along the circle
     var SPEED = STEP / 3.6;              // one position every ~3.6 s
     var HOVER_SCALE = 1.6;
-    var HIDE_FROM = 1.05, HIDE_TO = 1.3; // radians from the front: fade out before the side turns back
+    var HIDE_FROM = 0.8, HIDE_TO = 1.25; // radians from the front: fade out before the side turns back
     var TILT = 0.07;                     // the ring is seen a little from above, so the sides rise slightly
 
     var R = 0, S = 0, offset = 0, speedK = reduce ? 0 : 1;
@@ -178,7 +178,7 @@
       R = Math.max(W * 0.72, 560);
       S = Math.round(R * 0.25);
       orbit.style.setProperty("--orbit-s", S + "px");
-      orbit.style.setProperty("--orbit-h", Math.round(S * HOVER_SCALE + S * 0.25 + R * TILT * 0.6) + "px");
+      orbit.style.setProperty("--orbit-h", Math.round(S * 1.1 + R * TILT * 0.6) + "px");
     }
 
     function place(){
