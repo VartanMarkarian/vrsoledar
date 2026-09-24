@@ -248,7 +248,7 @@
       if(scrub !== null){
         // pulled from the dots: rush to the chosen object, then settle
         speedK = 0;
-        offset += (scrub - offset) * Math.min(1, dt * 3.5);
+        offset += (scrub - offset) * Math.min(1, dt * 1.2);
         if(Math.abs(scrub - offset) < 0.002){ offset = scrub; if(!dragging) scrub = null; }
         moving = scrub === null || offset !== scrub;
       } else {
