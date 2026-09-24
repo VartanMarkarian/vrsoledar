@@ -736,6 +736,26 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 }
 .history-cta h3{ font-family:var(--font-display); font-size:clamp(20px,2.6vw,28px); font-weight:600; max-width:22ch; }
 .history-cta p{ color:var(--ink-dim); margin-top:10px; max-width:44ch; font-size:14.5px; }
+/* "Read the story" button drawn as the wireframe mine cart; the label sits in the cart's empty side panel */
+.btn-vagon{
+  position:relative; display:block; flex:none;
+  width:clamp(230px, 24vw, 300px); aspect-ratio:1426 / 999;
+  background:url('../img/vagon.webp') center / contain no-repeat;
+  color:var(--ink);
+  transition:transform .5s var(--ease), filter .4s ease;
+}
+.btn-vagon-label{
+  /* the panel's position inside the image */
+  position:absolute; left:19.8%; top:14.2%; width:51.9%; height:30.4%;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:0 6px;
+  font-family:var(--font-display); font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; line-height:1.3;
+  transition:background .4s ease, color .4s ease;
+}
+.btn-vagon:hover{ transform:translateX(8px); filter:drop-shadow(0 0 6px rgba(255,170,100,.45)) brightness(1.15); }
+.btn-vagon:hover .btn-vagon-label{ color:var(--amber-soft); background:rgba(255,138,76,.08); }
+.btn-vagon:active{ transform:translateX(4px) scale(.98); }
+.btn-vagon:focus-visible{ outline:2px solid rgba(255,191,143,.7); outline-offset:6px; border-radius:6px; }
 .btn{
   display:inline-flex; align-items:center; gap:12px;
   padding:14px 26px; border:1px solid var(--ink); border-radius:40px;
