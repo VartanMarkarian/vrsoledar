@@ -384,7 +384,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
 /* ===========================================================
    ABOUT
    =========================================================== */
-.about{ background:var(--bg); }
+.about{ background:var(--bg); overflow-x:clip; } /* the quote's particle canvas reaches past the column */
 .about-grid{
   display:grid; grid-template-columns:1fr; gap:clamp(30px,6vw,64px);
   align-items:start;
@@ -416,6 +416,10 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   font-size:clamp(19px,2.6vw,30px); line-height:1.35; color:var(--ink);
   max-width:820px;
 }
+/* the quote is redrawn as dust particles (same engine as the hero title), with its reflection below */
+.quote-particles{ position:absolute; left:0; top:0; pointer-events:none; }
+.quote-block.pt-on{ padding-bottom:calc(clamp(28px,4vw,46px) + 44px); }
+.quote-block.pt-on p{ color:transparent; }
 
 /* ===========================================================
    VIDEO EMBED (used inside About)

@@ -336,6 +336,45 @@
     var wrap = document.getElementById("hero-title-wrap");
     var canvas = document.getElementById("hero-title-particles");
     if(!wrap || !canvas) return;
+    particleText({
+      wrap: wrap,
+      canvas: canvas,
+      textEl: function(){
+        var lang = document.documentElement.getAttribute("data-active-lang") || "ua";
+        return wrap.querySelector('h1[data-lang="' + lang + '"]');
+      }
+    });
+  }
+
+  /* ---------------- About quote: the same particle text, over several lines ---------------- */
+  function initQuoteParticles(){
+    var wrap = document.querySelector(".quote-block");
+    if(!wrap) return;
+    if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // wrap every word, so each wrapped line can be redrawn exactly where the browser put it
+    Array.prototype.forEach.call(wrap.querySelectorAll("p"), function(pEl){
+      pEl.innerHTML = pEl.textContent.replace(/[&<>]/g, function(c){ return { "&":"&amp;", "<":"&lt;", ">":"&gt;" }[c]; })
+        .replace(/(\S+)/g, '<span class="pt-word">$1</span>');
+    });
+    var canvas = document.createElement("canvas");
+    canvas.className = "quote-particles";
+    canvas.setAttribute("aria-hidden", "true");
+    wrap.appendChild(canvas);
+    particleText({
+      wrap: wrap,
+      canvas: canvas,
+      textEl: function(){
+        var lang = document.documentElement.getAttribute("data-active-lang") || "ua";
+        return wrap.querySelector('p[data-lang="' + lang + '"]');
+      },
+      step: 1.15, stepSparse: 1.6, alphaMin: 70,
+      repel: 70, reflSquash: 0.38, reflGap: 10,
+      onBuilt: function(){ wrap.classList.add("pt-on"); }
+    });
+  }
+
+  function particleText(opt){
+    var wrap = opt.wrap, canvas = opt.canvas;
     if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     var ctx = canvas.getContext("2d");
     var DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -344,7 +383,7 @@
     // soft spring + strong damping: particles drift back without bouncing
     var SPRING = 0.008;
     var DAMPING = 0.86;
-    var REPEL_RADIUS = 100;
+    var REPEL_RADIUS = opt.repel || 100;
     var REPEL_FORCE = 1.8;
     var LIFT = 0.3;        // pushed particles rise a little, like dust in air
     var SWIRL = 1.0;       // sideways (tangential) spread, per-particle direction
@@ -354,8 +393,8 @@
     var DUST_FADE = 180;   // px of displacement at which a particle is most transparent
 
     // Reflection (mirror below the title, like a water surface)
-    var REFL_GAP = 6;
-    var REFL_SQUASH = 0.72;
+    var REFL_GAP = opt.reflGap || 6;
+    var REFL_SQUASH = opt.reflSquash || 0.72;
     var REFL_ALPHA = 0.55;
     var REFL_SPRING = 0.009;
     var REFL_DAMPING = 0.84;
@@ -368,15 +407,12 @@
     var canvasRect = null;
     var field = { pad:0, w:0, reflTop:0, reflH:0 };
 
-    function activeH1(){
-      var lang = document.documentElement.getAttribute("data-active-lang") || "ua";
-      return wrap.querySelector('h1[data-lang="' + lang + '"]');
-    }
-
     function buildParticles(){
-      var h1 = activeH1();
+      var h1 = opt.textEl();
       if(!h1) return;
       var rect = h1.getBoundingClientRect();
+      var wrapRect = wrap.getBoundingClientRect();
+      var offX = rect.left - wrapRect.left, offY = rect.top - wrapRect.top;
       var w = Math.max(1, Math.round(rect.width));
       var h = Math.max(1, Math.round(rect.height));
       var PAD = Math.round(REPEL_RADIUS * 2.4);
@@ -395,8 +431,18 @@
       octx.font = cs.fontStyle + " " + cs.fontWeight + " " + cs.fontSize + "/" + cs.lineHeight + " " + cs.fontFamily;
       try{ octx.letterSpacing = cs.letterSpacing; }catch(e){}
 
+      var upper = cs.textTransform === "uppercase";
       var lineEls = h1.querySelectorAll(".line");
-      if(lineEls.length){
+      var wordEls = h1.querySelectorAll(".pt-word");
+      if(wordEls.length){
+        // multi-line text: every word where the browser laid it out
+        octx.textAlign = "left";
+        Array.prototype.forEach.call(wordEls, function(wEl){
+          var wr = wEl.getBoundingClientRect();
+          var txt = upper ? wEl.textContent.toUpperCase() : wEl.textContent;
+          octx.fillText(txt, wr.left - rect.left, (wr.top - rect.top) + wr.height / 2);
+        });
+      }else if(lineEls.length){
         lineEls.forEach(function(lineEl){
           var lr = lineEl.getBoundingClientRect();
           var cx = (lr.left - rect.left) + lr.width / 2;
@@ -409,13 +455,14 @@
 
       var data = octx.getImageData(0, 0, OW, OH).data;
       var dense = window.innerWidth >= 700;
-      var step = Math.max(1, Math.round((dense ? 1.6 : 2.6) * DPR));
+      var step = Math.max(1, Math.round((dense ? (opt.step || 1.6) : (opt.stepSparse || 2.6)) * DPR));
+      var alphaMin = opt.alphaMin || 120;
 
       var points = [];
       var glyphTop = Infinity, glyphBottom = -Infinity;
       for(var y = 0; y < OH; y += step){
         for(var x = 0; x < OW; x += step){
-          if(data[(y * OW + x) * 4 + 3] > 120){
+          if(data[(y * OW + x) * 4 + 3] > alphaMin){
             var lx = x / DPR, ly = y / DPR;
             points.push(lx, ly);
             if(ly < glyphTop) glyphTop = ly;
@@ -434,8 +481,8 @@
       canvas.height = Math.round((h + extra + PAD * 2) * DPR);
       canvas.style.width = (w + PAD * 2) + "px";
       canvas.style.height = (h + extra + PAD * 2) + "px";
-      canvas.style.left = (-PAD) + "px";
-      canvas.style.top = (-PAD) + "px";
+      canvas.style.left = (offX - PAD) + "px";
+      canvas.style.top = (offY - PAD) + "px";
       canvasRect = null;
       field = { pad:PAD, w:w, reflTop:reflTop + PAD, reflH:reflH };
 
@@ -455,6 +502,7 @@
           }
         }
       }
+      if(opt.onBuilt) opt.onBuilt();
     }
 
     function makeParticle(hx, hy, refl, fade){
@@ -679,6 +727,7 @@
     initExperience();
     initVideoEmbed();
     initHeroParticles();
+    initQuoteParticles();
     initOrbit();
   });
 })();
