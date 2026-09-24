@@ -172,6 +172,21 @@
     var active = -1, visible = false, raf = 0, last = 0;
     var zoom = items.map(function(){ return 1; });
     var lastType = "";
+    var scrub = null, overDots = false;  // scrub: offset the ring is being pulled to from the dots
+
+    // one dot per object; the dot of the object at the front grows and lights up
+    var dotsBar = document.querySelector(".orbit-dots");
+    var dots = [];
+    if(dotsBar){
+      for(var d = 0; d < N; d++){
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "orbit-dot";
+        b.setAttribute("aria-label", (d + 1) + " / " + N);
+        dotsBar.appendChild(b);
+        dots.push(b);
+      }
+    }
 
     function layout(){
       var W = orbit.clientWidth;
@@ -200,6 +215,23 @@
         el.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0) scale(" + k.toFixed(4) + ")";
         el.style.zIndex = i === active ? 1000 : Math.round(p * 100);
       }
+      // continuous "front" position, so the highlight glides from dot to dot with the ring
+      if(dots.length){
+        var f = ((-offset / STEP) % N + N) % N;
+        for(var j = 0; j < N; j++){
+          var dd = Math.abs(j - f);
+          dd = Math.min(dd, N - dd);
+          dots[j].style.setProperty("--k", Math.max(0, 1 - dd).toFixed(3));
+        }
+      }
+    }
+
+    // bring object i to the front along the shorter way round
+    function scrubTo(i){
+      var t = -i * STEP;
+      t += Math.PI * 2 * Math.round((offset - t) / (Math.PI * 2));
+      scrub = t;
+      kick();
     }
 
     function frame(t){
@@ -207,10 +239,19 @@
       var dt = last ? Math.min(0.05, (t - last) / 1000) : 0;
       last = t;
       // ease the ring to a stop while an image is held, and back up to speed afterwards
-      var targetK = (active >= 0 || reduce) ? 0 : 1;
-      speedK += (targetK - speedK) * Math.min(1, dt * 4);
-      offset -= SPEED * speedK * dt;                        // negative: right-to-left
-      var moving = Math.abs(targetK - speedK) > 0.001 || targetK > 0;
+      var targetK = (active >= 0 || reduce || scrub !== null) ? 0 : 1;
+      var moving = false;
+      if(scrub !== null){
+        // pulled from the dots: rush to the chosen object, then settle
+        speedK = 0;
+        offset += (scrub - offset) * Math.min(1, dt * 7);
+        if(Math.abs(scrub - offset) < 0.002){ offset = scrub; if(!overDots) scrub = null; }
+        moving = scrub === null || offset !== scrub;
+      } else {
+        speedK += (targetK - speedK) * Math.min(1, dt * 4);
+        offset -= SPEED * speedK * dt;                      // negative: right-to-left
+        moving = Math.abs(targetK - speedK) > 0.001 || targetK > 0;
+      }
       for(var i = 0; i < N; i++){
         var z = i === active ? HOVER_SCALE : 1;
         zoom[i] += (z - zoom[i]) * Math.min(1, dt * 7);
@@ -243,6 +284,32 @@
       });
     });
     document.addEventListener("click", function(){ if(active >= 0 && !orbit.matches(":hover")) setActive(-1); });
+
+    if(dotsBar){
+      // sweep the mouse (or a finger) along the dots to spin through the objects
+      var dotAt = function(e){
+        var r = dotsBar.getBoundingClientRect();
+        return Math.max(0, Math.min(N - 1, Math.floor((e.clientX - r.left) / r.width * N)));
+      };
+      dotsBar.addEventListener("pointerenter", function(e){ if(e.pointerType === "mouse") overDots = true; });
+      dotsBar.addEventListener("pointermove", function(e){
+        if(e.pointerType === "mouse" || overDots) scrubTo(dotAt(e));
+      });
+      dotsBar.addEventListener("pointerdown", function(e){
+        overDots = true;
+        setActive(-1);
+        if(e.pointerType !== "mouse" && dotsBar.setPointerCapture) dotsBar.setPointerCapture(e.pointerId);
+        scrubTo(dotAt(e));
+      });
+      var release = function(e){ if(e.type === "pointerleave" ? e.pointerType === "mouse" : e.pointerType !== "mouse"){ overDots = false; kick(); } };
+      dotsBar.addEventListener("pointerleave", release);
+      dotsBar.addEventListener("pointerup", release);
+      dotsBar.addEventListener("pointercancel", release);
+      // keyboard
+      dots.forEach(function(b, i){
+        b.addEventListener("click", function(e){ if(e.detail === 0) scrubTo(i); });
+      });
+    }
 
     layout(); place();
     window.addEventListener("resize", function(){ layout(); place(); });
