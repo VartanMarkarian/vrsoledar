@@ -172,7 +172,7 @@
     var active = -1, visible = false, raf = 0, last = 0;
     var zoom = items.map(function(){ return 1; });
     var lastType = "";
-    var scrub = null, overDots = false;  // scrub: offset the ring is being pulled to from the dots
+    var scrub = null, dragging = false;  // scrub: offset the ring is being pulled to by the dragged dot
 
     // one dot per object; the dot of the object at the front grows and lights up
     var dotsBar = document.querySelector(".orbit-dots");
@@ -217,8 +217,10 @@
       }
       // continuous "front" position, so the highlight glides from dot to dot with the ring
       if(dots.length){
-        var f = ((-offset / STEP) % N + N) % N;
+        var f = frontPos();
+        var near = Math.round(f) % N;
         for(var j = 0; j < N; j++){
+          dots[j].classList.toggle("is-front", j === near);
           var dd = Math.abs(j - f);
           dd = Math.min(dd, N - dd);
           dots[j].style.setProperty("--k", Math.max(0, 1 - dd).toFixed(3));
@@ -226,7 +228,9 @@
       }
     }
 
-    // bring object i to the front along the shorter way round
+    function frontPos(){ return ((-offset / STEP) % N + N) % N; }
+
+    // bring object i (may be fractional while dragging) to the front along the shorter way round
     function scrubTo(i){
       var t = -i * STEP;
       t += Math.PI * 2 * Math.round((offset - t) / (Math.PI * 2));
@@ -244,8 +248,8 @@
       if(scrub !== null){
         // pulled from the dots: rush to the chosen object, then settle
         speedK = 0;
-        offset += (scrub - offset) * Math.min(1, dt * 7);
-        if(Math.abs(scrub - offset) < 0.002){ offset = scrub; if(!overDots) scrub = null; }
+        offset += (scrub - offset) * Math.min(1, dt * 3.5);
+        if(Math.abs(scrub - offset) < 0.002){ offset = scrub; if(!dragging) scrub = null; }
         moving = scrub === null || offset !== scrub;
       } else {
         speedK += (targetK - speedK) * Math.min(1, dt * 4);
@@ -286,23 +290,28 @@
     document.addEventListener("click", function(){ if(active >= 0 && !orbit.matches(":hover")) setActive(-1); });
 
     if(dotsBar){
-      // sweep the mouse (or a finger) along the dots to spin through the objects
-      var dotAt = function(e){
+      // only the glowing front dot can be grabbed; dragging it along the row spins the ring
+      var posAt = function(e){
         var r = dotsBar.getBoundingClientRect();
-        return Math.max(0, Math.min(N - 1, Math.floor((e.clientX - r.left) / r.width * N)));
+        return Math.max(0, Math.min(N - 1, (e.clientX - r.left) / r.width * N - 0.5));
       };
-      dotsBar.addEventListener("pointerenter", function(e){ if(e.pointerType === "mouse") overDots = true; });
-      dotsBar.addEventListener("pointermove", function(e){
-        if(e.pointerType === "mouse" || overDots) scrubTo(dotAt(e));
-      });
       dotsBar.addEventListener("pointerdown", function(e){
-        overDots = true;
+        var p = posAt(e), d = Math.abs(p - frontPos());
+        if(Math.min(d, N - d) > 0.9) return;                // not on the glowing dot
+        e.preventDefault();
+        dragging = true;
+        dotsBar.classList.add("is-dragging");
         setActive(-1);
-        if(e.pointerType !== "mouse" && dotsBar.setPointerCapture) dotsBar.setPointerCapture(e.pointerId);
-        scrubTo(dotAt(e));
+        if(dotsBar.setPointerCapture) dotsBar.setPointerCapture(e.pointerId);
+        scrubTo(p);
       });
-      var release = function(e){ if(e.type === "pointerleave" ? e.pointerType === "mouse" : e.pointerType !== "mouse"){ overDots = false; kick(); } };
-      dotsBar.addEventListener("pointerleave", release);
+      dotsBar.addEventListener("pointermove", function(e){ if(dragging) scrubTo(posAt(e)); });
+      var release = function(e){
+        if(!dragging) return;
+        dragging = false;
+        dotsBar.classList.remove("is-dragging");
+        scrubTo(Math.round(posAt(e)));                      // settle on the object under the dot, then carry on
+      };
       dotsBar.addEventListener("pointerup", release);
       dotsBar.addEventListener("pointercancel", release);
       // keyboard
