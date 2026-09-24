@@ -1,3 +1,5 @@
 # Working/source files that are not part of the published site
 *.psd
 Untitled*.png
+*.blend
+*.blend1

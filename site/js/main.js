@@ -153,48 +153,103 @@
     }, { once:true });
   }
 
-  /* ---------------- Gallery lightbox ---------------- */
-  function initLightbox(){
-    var items = Array.prototype.slice.call(document.querySelectorAll(".gallery-item"));
-    var lightbox = document.querySelector(".lightbox");
-    if(!items.length || !lightbox) return;
-    var imgEl = lightbox.querySelector("img");
-    var nEl = lightbox.querySelector(".lightbox-cap .n");
-    var capEl = lightbox.querySelector(".lightbox-cap p");
-    var closeBtn = lightbox.querySelector(".lightbox-close");
-    var prevBtn = lightbox.querySelector(".lightbox-prev");
-    var nextBtn = lightbox.querySelector(".lightbox-next");
-    var current = 0;
+  /* ---------------- Objects of memory: images orbiting a large circle ---------------- */
+  function initOrbit(){
+    var orbit = document.querySelector(".orbit");
+    if(!orbit) return;
+    var items = Array.prototype.slice.call(orbit.querySelectorAll(".orbit-item"));
+    var N = items.length;
+    if(!N) return;
 
-    function open(i){
-      current = (i + items.length) % items.length;
-      var el = items[current];
-      var full = el.getAttribute("data-full") || el.querySelector("img").src;
-      var lang = document.documentElement.getAttribute("data-active-lang") || "ua";
-      imgEl.src = full;
-      imgEl.alt = el.querySelector("img").alt || "";
-      if(nEl) nEl.textContent = el.getAttribute("data-n") || "";
-      if(capEl) capEl.textContent = el.getAttribute("data-cap-" + lang) || el.getAttribute("data-cap-ua") || "";
-      lightbox.classList.add("is-open");
-      document.body.style.overflow = "hidden";
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var STEP = Math.PI * 2 / N;          // equal spacing along the circle
+    var SPEED = STEP / 3.6;              // one position every ~3.6 s
+    var HOVER_SCALE = 1.6;
+    var HIDE_FROM = 1.05, HIDE_TO = 1.3; // radians from the front: fade out before the side turns back
+    var TILT = 0.07;                     // the ring is seen a little from above, so the sides rise slightly
+
+    var R = 0, S = 0, offset = 0, speedK = reduce ? 0 : 1;
+    var active = -1, visible = false, raf = 0, last = 0;
+    var zoom = items.map(function(){ return 1; });
+
+    function layout(){
+      var W = orbit.clientWidth;
+      // x reaches its widest (0.707 R) at ~70° -> that is the visible half-width
+      R = Math.max(W * 0.72, 560);
+      S = Math.round(R * 0.25);
+      orbit.style.setProperty("--orbit-s", S + "px");
+      orbit.style.setProperty("--orbit-h", Math.round(S * HOVER_SCALE + S * 0.25 + R * TILT * 0.6) + "px");
     }
-    function close(){
-      lightbox.classList.remove("is-open");
-      document.body.style.overflow = "";
+
+    function place(){
+      for(var i = 0; i < N; i++){
+        var th = offset + i * STEP;
+        th = Math.atan2(Math.sin(th), Math.cos(th));          // wrap to [-PI, PI]
+        var a = Math.abs(th);
+        var el = items[i];
+        if(a > HIDE_TO && i !== active){ el.style.opacity = "0"; el.style.visibility = "hidden"; continue; }
+        var c = Math.cos(th);
+        var p = 2 / (3 - c);                                  // perspective with the eye 2R in front of the ring
+        var x = R * Math.sin(th) * p;
+        var y = -R * (1 - c) * TILT;
+        var fade = a < HIDE_FROM ? 1 : 1 - (a - HIDE_FROM) / (HIDE_TO - HIDE_FROM);
+        var k = p * zoom[i];
+        el.style.visibility = "visible";
+        el.style.opacity = (fade * (0.45 + 0.55 * (p - 0.7) / 0.3)).toFixed(3);
+        el.style.transform = "translate3d(" + x.toFixed(1) + "px," + y.toFixed(1) + "px,0) scale(" + k.toFixed(4) + ")";
+        el.style.zIndex = i === active ? 1000 : Math.round(p * 100);
+      }
     }
+
+    function frame(t){
+      raf = 0;
+      var dt = last ? Math.min(0.05, (t - last) / 1000) : 0;
+      last = t;
+      // ease the ring to a stop while an image is held, and back up to speed afterwards
+      var targetK = (active >= 0 || reduce) ? 0 : 1;
+      speedK += (targetK - speedK) * Math.min(1, dt * 4);
+      offset -= SPEED * speedK * dt;                        // negative: right-to-left
+      var moving = Math.abs(targetK - speedK) > 0.001 || targetK > 0;
+      for(var i = 0; i < N; i++){
+        var z = i === active ? HOVER_SCALE : 1;
+        zoom[i] += (z - zoom[i]) * Math.min(1, dt * 7);
+        if(Math.abs(z - zoom[i]) > 0.001) moving = true;
+      }
+      place();
+      if(visible && moving) raf = requestAnimationFrame(frame);
+      else last = 0;
+    }
+    function kick(){ if(!raf && visible) raf = requestAnimationFrame(frame); }
+
+    function setActive(i){
+      if(active === i) return;
+      if(active >= 0) items[active].classList.remove("is-active");
+      active = i;
+      if(active >= 0) items[active].classList.add("is-active");
+      kick();
+    }
+
     items.forEach(function(el, i){
-      el.addEventListener("click", function(){ open(i); });
+      el.addEventListener("pointerenter", function(e){ if(e.pointerType === "mouse") setActive(i); });
+      el.addEventListener("pointerleave", function(e){ if(e.pointerType === "mouse" && active === i) setActive(-1); });
+      // touch: tap to enlarge, tap again (or anywhere else) to let it go
+      el.addEventListener("click", function(e){
+        if(e.pointerType === "mouse") return;
+        e.stopPropagation();
+        setActive(active === i ? -1 : i);
+      });
     });
-    if(closeBtn) closeBtn.addEventListener("click", close);
-    if(prevBtn) prevBtn.addEventListener("click", function(){ open(current - 1); });
-    if(nextBtn) nextBtn.addEventListener("click", function(){ open(current + 1); });
-    lightbox.addEventListener("click", function(e){ if(e.target === lightbox) close(); });
-    document.addEventListener("keydown", function(e){
-      if(!lightbox.classList.contains("is-open")) return;
-      if(e.key === "Escape") close();
-      if(e.key === "ArrowRight") open(current + 1);
-      if(e.key === "ArrowLeft") open(current - 1);
-    });
+    document.addEventListener("click", function(){ if(active >= 0 && !orbit.matches(":hover")) setActive(-1); });
+
+    layout(); place();
+    window.addEventListener("resize", function(){ layout(); place(); });
+
+    if("IntersectionObserver" in window){
+      new IntersectionObserver(function(entries){
+        visible = entries[0].isIntersecting;
+        if(visible) kick();
+      }, { rootMargin:"100px 0px" }).observe(orbit);
+    } else { visible = true; kick(); }
   }
 
   /* ---------------- Hero title: living particle field (spring physics + cursor repulsion) ---------------- */
@@ -545,6 +600,6 @@
     initExperience();
     initVideoEmbed();
     initHeroParticles();
-    initLightbox();
+    initOrbit();
   });
 })();
