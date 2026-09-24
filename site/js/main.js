@@ -218,9 +218,7 @@
       // continuous "front" position, so the highlight glides from dot to dot with the ring
       if(dots.length){
         var f = frontPos();
-        var near = Math.round(f) % N;
         for(var j = 0; j < N; j++){
-          dots[j].classList.toggle("is-front", j === near);
           var dd = Math.abs(j - f);
           dd = Math.min(dd, N - dd);
           dots[j].style.setProperty("--k", Math.max(0, 1 - dd).toFixed(3));
@@ -230,11 +228,12 @@
 
     function frontPos(){ return ((-offset / STEP) % N + N) % N; }
 
-    // bring object i (may be fractional while dragging) to the front along the shorter way round
+    // bring object i to the front, travelling along the dot row (not round the back),
+    // so the glowing dot follows the pointer across the row
     function scrubTo(i){
-      var t = -i * STEP;
-      t += Math.PI * 2 * Math.round((offset - t) / (Math.PI * 2));
-      scrub = t;
+      var f = frontPos();
+      if(f > N - 0.5) f -= N;                               // highlight is wrapping from the last dot to the first
+      scrub = offset - (i - f) * STEP;
       kick();
     }
 
@@ -248,7 +247,10 @@
       if(scrub !== null){
         // pulled from the dots: rush to the chosen object, then settle
         speedK = 0;
-        offset += (scrub - offset) * Math.min(1, dt * 1.2);
+        var v = (scrub - offset) * 1.5;                     // ease in towards the chosen object...
+        var VMAX = STEP * 4;                                // ...but never faster than 4 objects a second
+        v = Math.max(-VMAX, Math.min(VMAX, v));
+        offset += v * dt;
         if(Math.abs(scrub - offset) < 0.002){ offset = scrub; if(!dragging) scrub = null; }
         moving = scrub === null || offset !== scrub;
       } else {
@@ -290,22 +292,20 @@
     document.addEventListener("click", function(){ if(active >= 0 && !orbit.matches(":hover")) setActive(-1); });
 
     if(dotsBar){
-      // only the glowing front dot can be grabbed; dragging it along the row spins the ring
+      // press anywhere on the row and sweep along it (button held) to spin through the objects
       var posAt = function(e){
         var r = dotsBar.getBoundingClientRect();
         return Math.max(0, Math.min(N - 1, (e.clientX - r.left) / r.width * N - 0.5));
       };
       dotsBar.addEventListener("pointerdown", function(e){
-        var p = posAt(e), d = Math.abs(p - frontPos());
-        if(Math.min(d, N - d) > 0.9) return;                // not on the glowing dot
         e.preventDefault();
         dragging = true;
         dotsBar.classList.add("is-dragging");
         setActive(-1);
         if(dotsBar.setPointerCapture) dotsBar.setPointerCapture(e.pointerId);
-        scrubTo(p);
+        scrubTo(Math.round(posAt(e)));
       });
-      dotsBar.addEventListener("pointermove", function(e){ if(dragging) scrubTo(posAt(e)); });
+      dotsBar.addEventListener("pointermove", function(e){ if(dragging) scrubTo(Math.round(posAt(e))); });
       var release = function(e){
         if(!dragging) return;
         dragging = false;

@@ -614,19 +614,19 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   transition:filter .5s var(--ease);
 }
 .orbit-item.is-active img{ filter:brightness(1.1) saturate(1.05); }
-/* one dot per object: the highlight glides along with the ring; drag it to spin through */
+/* one dot per object: the highlight glides along with the ring; press and sweep along the row to spin through */
 .orbit-dots{
   --pitch:18px;
   position:relative; z-index:3;
   display:flex; justify-content:center;
   width:max-content; margin:clamp(14px, 2vw, 24px) auto 0;
-  touch-action:none;
+  touch-action:none; cursor:grab;
 }
 .orbit-dot{
   --k:0;
   position:relative;
   width:var(--pitch); height:28px;
-  padding:0; border:0; background:none; cursor:default;
+  padding:0; border:0; background:none; cursor:inherit;
   -webkit-tap-highlight-color:transparent;
 }
 .orbit-dot::before, .orbit-dot::after{
@@ -640,7 +640,6 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   opacity:var(--k);
   box-shadow:0 0 8px rgba(255,170,100,.55);
 }
-.orbit-dot.is-front{ cursor:grab; }
 .orbit-dots.is-dragging, .orbit-dots.is-dragging .orbit-dot{ cursor:grabbing; }
 .orbit-dot:focus-visible{ outline:none; }
 .orbit-dot:focus-visible::before{ box-shadow:0 0 0 2px rgba(255,191,143,.7); }
