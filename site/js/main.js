@@ -300,6 +300,7 @@
     var STEP = Math.PI * 2 / N;          // equal spacing along the circle
     var SPEED = STEP / 3.6;              // one position every ~3.6 s
     var HOVER_SCALE = 1.6;
+    var zoomTo = HOVER_SCALE;
     var HIDE_FROM = 0.8, HIDE_TO = 1.25; // radians from the front: fade out before the side turns back
     var TILT = 0.07;                     // the ring is seen a little from above, so the sides rise slightly
 
@@ -327,6 +328,10 @@
       var W = orbit.clientWidth;
       // x reaches its widest (0.707 R) at ~70° -> that is the visible half-width
       R = Math.max(W * 0.72, 560);
+      // phones: objects twice as big (the ring grows with them so they keep their spacing)
+      var phone = W < 600;
+      if(phone) R *= 2;
+      zoomTo = phone ? 1.25 : HOVER_SCALE;   // a tapped object would not fit the screen at 1.6x
       S = Math.round(R * 0.25);
       orbit.style.setProperty("--orbit-s", S + "px");
       orbit.style.setProperty("--orbit-h", Math.round(S * 1.1 + R * TILT * 0.6) + "px");
@@ -394,7 +399,7 @@
         moving = Math.abs(targetK - speedK) > 0.001 || targetK > 0;
       }
       for(var i = 0; i < N; i++){
-        var z = i === active ? HOVER_SCALE : 1;
+        var z = i === active ? zoomTo : 1;
         zoom[i] += (z - zoom[i]) * Math.min(1, dt * 7);
         if(Math.abs(z - zoom[i]) > 0.001) moving = true;
       }
