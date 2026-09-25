@@ -471,6 +471,41 @@
     } else { visible = true; kick(); }
   }
 
+  /* ---------------- AR objects page: QR codes on computers, "View in AR" on phones, deep links ---------------- */
+  function initArPage(){
+    var items = Array.prototype.slice.call(document.querySelectorAll(".ar-item"));
+    if(!items.length) return;
+    var page = location.origin + location.pathname;
+
+    // each QR code opens this page on the phone straight at its object
+    Array.prototype.forEach.call(document.querySelectorAll(".ar-qr-code"), function(box){
+      if(typeof window.qrcode !== "function") return;
+      var qr = window.qrcode(0, "M");
+      qr.addData(page + "#" + box.getAttribute("data-model"));
+      qr.make();
+      box.innerHTML = qr.createSvgTag({ cellSize:4, margin:2, scalable:true });
+    });
+
+    items.forEach(function(it){
+      var mv = it.querySelector("model-viewer");
+      var btn = it.querySelector(".ar-open");
+      var note = it.querySelector(".ar-unsupported");
+      if(!mv || !btn) return;
+      btn.addEventListener("click", function(){
+        if(mv.canActivateAR){ mv.activateAR(); }
+        else if(note){ note.hidden = false; }
+      });
+    });
+
+    // arriving from a QR code: bring that object forward and make its AR button call for a tap
+    // (browsers only start AR from a tap, so it can't open by itself)
+    var target = location.hash && document.getElementById(location.hash.slice(1));
+    if(target && target.classList.contains("ar-item")){
+      target.classList.add("is-target");
+      setTimeout(function(){ target.scrollIntoView({ block:"start" }); }, 60);
+    }
+  }
+
   /* ---------------- Tour page: enlarged viewer with the object's text, arrows / keys / swipe ---------------- */
   function initTourViewer(){
     var items = Array.prototype.slice.call(document.querySelectorAll(".tour-item"));
@@ -1076,5 +1111,6 @@
     initWireFrames();
     initTeamPortraits();
     initTourViewer();
+    initArPage();
   });
 })();
