@@ -245,8 +245,8 @@
         }
       }
       src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
-      var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 500;
-      var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2600; lp.Q.value = 0.4;  // muffled, no crisp edge
+      var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 800;
+      var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 3500; lp.Q.value = 0.4;  // soft, no crisp edge
       gain = ctx.createGain(); gain.gain.value = 0;
       var dry = ctx.createGain(); dry.gain.value = 0.35;       // mostly heard through the space, so it stays atmospheric
       var send = ctx.createGain(); send.gain.value = 1;
@@ -265,7 +265,7 @@
         var now = A.ctx.currentTime;
         // loudness follows the stir, capped at what 40% of the old full stir gave (0.22 * 0.4^1.3)
         gain.gain.setTargetAtTime(0.22 * Math.pow(0.4 * v, 1.3), now, v > level ? 0.12 : 0.45);  // soft swell in, long fade out
-        src.playbackRate.setTargetAtTime(0.92 + v * 0.12, now, 0.3);
+        src.playbackRate.setTargetAtTime(1.08 + v * 0.12, now, 0.3);
         level = v;
       }
     };
