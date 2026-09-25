@@ -779,8 +779,10 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
   margin-top:22px; font-size:12.5px; font-weight:400; line-height:1.6; color:var(--ink-faint);
 }
 .logo-strip{
-  /* about the same distance as between two sections */
-  margin-top:calc(1.5 * clamp(48px,5.5vw,84px)); padding:10px 0;
+  /* about the same distance as between two sections, and the same again below the logos
+     (0.5 x section padding here + the section's own bottom padding = 1.5 x, like above) */
+  margin-top:calc(1.5 * clamp(48px,5.5vw,84px));
+  padding:10px 0 calc(10px + .5 * clamp(48px,5.5vw,84px));   /* padding, not margin: a trailing margin would collapse */
 }
 /* the partner logos are dark artwork: turn them white so they sit straight on the site background */
 .logo-strip img{ width:100%; height:auto; display:block; filter:brightness(0) invert(1); opacity:.88; }
