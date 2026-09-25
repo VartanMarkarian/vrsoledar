@@ -722,16 +722,15 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
    SPECIFICATIONS
    =========================================================== */
 .specs{ background:var(--bg); }
-/* same wireframe boxes as the team cards, content centred */
+/* quiet list: label over value, a hairline underneath */
 .specs-grid{
   display:grid; grid-template-columns:repeat(4, 1fr);   /* 8 specs: two even rows */
-  gap:clamp(34px, 3.4vw, 48px);
-  padding:28px 22px 12px 8px;           /* room for the wireframe boxes that reach past each card */
+  column-gap:clamp(20px, 2.6vw, 32px);
 }
 .spec{
-  display:flex; flex-direction:column; gap:12px;
-  align-items:center; justify-content:center; text-align:center;
-  min-height:150px; padding:28px 18px;
+  display:flex; flex-direction:column; gap:10px;
+  padding:clamp(20px, 2.2vw, 28px) 4px;
+  border-bottom:1px solid var(--panel-line);
 }
 .spec .spec-label{
   font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint);
