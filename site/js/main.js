@@ -152,26 +152,27 @@
       input.connect(comp); comp.connect(ctx.destination);
     }
 
-    // one mechanical transient: a bright noise snap plus a short low knock of the plate
+    // one mechanical click: a very short, bright noise snap plus a tiny metallic tick (no low body, so no drum)
     function clack(at, pitch, level){
-      var n = Math.floor(ctx.sampleRate * 0.03);
+      var n = Math.floor(ctx.sampleRate * 0.012);
       var buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
-      for(var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 6);
+      for(var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 8);
       var noise = ctx.createBufferSource(); noise.buffer = buf;
-      var band = ctx.createBiquadFilter(); band.type = "bandpass"; band.frequency.value = 2600 * pitch; band.Q.value = 1.4;
-      var ng = ctx.createGain(); ng.gain.value = level;
-      noise.connect(band); band.connect(ng); ng.connect(input);
+      var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 1800;
+      var band = ctx.createBiquadFilter(); band.type = "bandpass"; band.frequency.value = 4800 * pitch; band.Q.value = 2.2;
+      var ng = ctx.createGain(); ng.gain.value = level * 1.6;
+      noise.connect(hp); hp.connect(band); band.connect(ng); ng.connect(input);
       noise.start(at);
 
-      var knock = ctx.createOscillator(); knock.type = "sine";
-      knock.frequency.setValueAtTime(190 * pitch, at);
-      knock.frequency.exponentialRampToValueAtTime(70 * pitch, at + 0.08);
-      var kg = ctx.createGain();
-      kg.gain.setValueAtTime(0.0001, at);
-      kg.gain.exponentialRampToValueAtTime(level * 0.9, at + 0.003);
-      kg.gain.exponentialRampToValueAtTime(0.0001, at + 0.12);
-      knock.connect(kg); kg.connect(input);
-      knock.start(at); knock.stop(at + 0.14);
+      var tick = ctx.createOscillator(); tick.type = "triangle";
+      tick.frequency.setValueAtTime(3400 * pitch, at);
+      tick.frequency.exponentialRampToValueAtTime(2300 * pitch, at + 0.012);
+      var tg = ctx.createGain();
+      tg.gain.setValueAtTime(0.0001, at);
+      tg.gain.exponentialRampToValueAtTime(level * 0.35, at + 0.0015);
+      tg.gain.exponentialRampToValueAtTime(0.0001, at + 0.018);
+      tick.connect(tg); tg.connect(input);
+      tick.start(at); tick.stop(at + 0.025);
     }
 
     return function(on){
@@ -181,7 +182,7 @@
         var t = ctx.currentTime + 0.01;
         // switching on is a firm double clack; switching off is a single, lower one
         if(on){ clack(t, 1, 0.9); clack(t + 0.028, 1.25, 0.45); }
-        else  { clack(t, 0.8, 0.75); }
+        else  { clack(t, 0.85, 0.75); }
       }catch(e){}
     };
   }
