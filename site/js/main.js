@@ -138,18 +138,41 @@
     });
   }
 
-  /* ---------------- Switch sound: a dry mechanical clack (synthesised, no audio files) ---------------- */
+  /* ---------------- Switch sound: a mechanical click in a large space (synthesised, no audio files) ---------------- */
   function switchSound(){
     var AC = window.AudioContext || window.webkitAudioContext;
     if(!AC) return function(){};
     var ctx = null, input = null;
 
+    // smooth, diffuse room tail: no distinct reflections, so it reads as space rather than echo
+    function hallImpulse(){
+      var rate = ctx.sampleRate, len = Math.floor(rate * 2.4), fadeIn = Math.floor(rate * 0.03);
+      var ir = ctx.createBuffer(2, len, rate);
+      for(var ch = 0; ch < 2; ch++){
+        var d = ir.getChannelData(ch), lp = 0;
+        for(var i = 0; i < len; i++){
+          var t = i / len;
+          // one-pole low-pass that closes over time: the tail darkens like air in a big hall
+          var k = 0.55 - 0.45 * t;
+          lp += ((Math.random() * 2 - 1) - lp) * k;
+          d[i] = lp * Math.exp(-5.2 * t) * Math.min(1, i / fadeIn);
+        }
+      }
+      return ir;
+    }
+
     function setup(){
       ctx = new AC();
       input = ctx.createGain();
       input.gain.value = 0.8;
+      var dry = ctx.createGain(); dry.gain.value = 1;
+      var hall = ctx.createConvolver(); hall.buffer = hallImpulse();
+      var lowCut = ctx.createBiquadFilter(); lowCut.type = "highpass"; lowCut.frequency.value = 300;
+      var wet = ctx.createGain(); wet.gain.value = 0.55;
       var comp = ctx.createDynamicsCompressor();
-      input.connect(comp); comp.connect(ctx.destination);
+      input.connect(dry); dry.connect(comp);
+      input.connect(hall); hall.connect(lowCut); lowCut.connect(wet); wet.connect(comp);
+      comp.connect(ctx.destination);
     }
 
     // one mechanical click: a very short, bright noise snap plus a tiny metallic tick (no low body, so no drum)
