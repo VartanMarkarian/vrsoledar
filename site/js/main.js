@@ -396,8 +396,8 @@
       var i = 7;
       edge(L + i, T + i, L + i, B - i, "wf-inner", false);
       edge(L + i, B - i, R - i, B - i, "wf-inner", false);
-      // one long construction line across the lower part of the card
-      var y = T + H * (0.3 + r() * 0.12);
+      // one long construction line across the bottom of the card, below the centred text
+      var y = T + H * (0.89 + r() * 0.04);
       line(L - 18 - r() * 10, y, R + 10 + r() * 16, y + (r() - 0.5) * 6, "wf-back wf-dash");
 
       card.insertBefore(svg, card.firstChild);

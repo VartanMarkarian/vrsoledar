@@ -127,6 +127,9 @@ html[data-active-lang="ua"] [data-lang="ua"]{ display:revert; }
 html[data-active-lang="en"] [data-lang="en"]{ display:revert; }
 html[data-active-lang="ua"] span[data-lang="ua"],
 html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
+/* the other language stays hidden even when a component sets its own display (grid, flex...) */
+html[data-active-lang="ua"] [data-lang="en"],
+html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
 
 /* ambient canvases */
 #bg-grain{
@@ -665,8 +668,9 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   padding:28px 22px 12px 8px;           /* room for the wireframe boxes that reach past each card */
 }
 .team-card{
-  padding:34px 24px; text-align:left;
-  display:flex; flex-direction:column; gap:18px; min-height:220px; justify-content:flex-end;
+  padding:34px 24px; text-align:center;
+  display:flex; flex-direction:column; gap:18px; min-height:220px;
+  align-items:center; justify-content:center;
   position:relative;
 }
 .team-glyph{ width:34px; height:34px; opacity:.85; }
@@ -674,7 +678,7 @@ html[data-active-lang="en"] span[data-lang="en"]{ display:inline; }
   font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint);
 }
 .team-card .name{
-  font-family:var(--font-display); font-size:19px; margin-top:6px; color:var(--ink);
+  font-family:var(--font-display); font-size:19px; line-height:1.3; margin-top:6px; color:var(--ink);
 }
 /* hand-drawn wireframe box around each card (built in JS): cold white lines, like the VR scene */
 .team-card .wf{
