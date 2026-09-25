@@ -263,7 +263,8 @@
         if(!gain) build(A);
         if(Math.abs(v - level) < 0.01) return;
         var now = A.ctx.currentTime;
-        gain.gain.setTargetAtTime(0.22 * Math.pow(v, 1.3), now, v > level ? 0.12 : 0.45);  // soft swell in, long fade out
+        // loudness follows the stir, capped at what 40% of the old full stir gave (0.22 * 0.4^1.3)
+        gain.gain.setTargetAtTime(0.22 * Math.pow(0.4 * v, 1.3), now, v > level ? 0.12 : 0.45);  // soft swell in, long fade out
         src.playbackRate.setTargetAtTime(0.92 + v * 0.12, now, 0.3);
         level = v;
       }
