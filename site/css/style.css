@@ -714,6 +714,8 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
    SPECIFICATIONS
    =========================================================== */
 .specs{ background:var(--bg); }
+.specs .section-head{ max-width:none; }
+.specs .section-head h2{ margin-top:0; white-space:nowrap; font-size:clamp(20px, 4.2vw, 46px); } /* the title stays on one line */
 .specs-grid{
   display:grid; grid-template-columns:repeat(4, 1fr);   /* 8 specs: two even rows */
   column-gap:clamp(20px, 2.6vw, 32px);
