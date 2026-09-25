@@ -466,14 +466,13 @@
     } else { visible = true; kick(); }
   }
 
-  /* ---------------- Team cards: hand-drawn wireframe boxes (like the VR scene and the mine cart) ---------------- */
+  /* ---------------- Team & spec cards: hand-drawn wireframe boxes (like the VR scene and the mine cart) ---------------- */
   function initWireFrames(){
-    var cards = Array.prototype.slice.call(document.querySelectorAll(".team-card"));
+    var cards = Array.prototype.slice.call(document.querySelectorAll(".wf-card"));
     if(!cards.length) return;
     var NS = "http://www.w3.org/2000/svg";
     var M = 28;                                    // room around the card for overshooting lines and the depth box
     var DEPTH = 0.11;                              // how far the back face recedes towards the vanishing point
-    var grid = document.querySelector(".team-grid");
 
     function rng(seed){                            // small deterministic PRNG, so each card keeps its own sketch
       return function(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
@@ -513,7 +512,8 @@
       }
       var L = M, T = M, R = M + W, B = M + H;
       // back face of the box: one-point perspective, every box recedes towards the same vanishing point
-      // in the middle of the team grid (between the 2nd and 3rd card)
+      // in the middle of its grid (for four in a row: between the 2nd and 3rd card)
+      var grid = card.closest(".wf-grid") || card.parentNode;
       var gr = grid.getBoundingClientRect(), cr = card.getBoundingClientRect();
       var vx = gr.left + gr.width / 2 - cr.left + M, vy = gr.top + gr.height / 2 - cr.top + M;
       var sc = 1 - DEPTH;
