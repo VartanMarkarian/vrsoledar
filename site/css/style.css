@@ -188,6 +188,9 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
   transition:right .35s var(--ease);
 }
 .site-nav a:hover::after{ right:0; }
+.site-nav a[aria-current="page"]{ color:var(--ink); }
+.site-nav a[aria-current="page"]::after{ right:0; }
+.mobile-nav a[aria-current="page"]{ color:var(--amber-soft); }
 
 .header-tools{ display:flex; align-items:center; gap:18px; }
 
