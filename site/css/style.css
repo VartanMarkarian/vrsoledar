@@ -722,18 +722,6 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
    SPECIFICATIONS
    =========================================================== */
 .specs{ background:var(--bg); }
-/* team + specs read as one group and, on a laptop, fit on one screen together */
-.team-group .section-head{ margin-bottom:clamp(14px, 2vw, 24px); }
-.team-group .team-grid{ padding-top:24px; padding-bottom:8px; }
-.team-group .team-card{ min-height:0; padding:18px 16px; gap:10px; }
-.team-group .team-portrait{ width:clamp(84px, 6.6vw, 100px); }
-.team-group .team-card .name{ font-size:17px; margin-top:2px; }
-.team-group .specs-layout{ margin-top:clamp(32px, 4vw, 48px); }
-.team-group .spec{ padding:8px 0; }
-.team-group .spec:first-child{ padding-top:0; }
-.story{ background:var(--bg); }
-.story .history-cta{ margin-top:0; }
-
 /* photo on the left, a narrow column of specs on the right (photo first on phones);
    the rows use the same type as the "Special thanks" list */
 .specs-layout{
