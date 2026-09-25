@@ -722,23 +722,24 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
    SPECIFICATIONS
    =========================================================== */
 .specs{ background:var(--bg); }
-/* quiet list: label over value, a hairline underneath */
-.specs-grid{
-  display:grid; grid-template-columns:repeat(4, 1fr);   /* 8 specs: two even rows */
-  column-gap:clamp(20px, 2.6vw, 32px);
+/* photo on the left, a narrow column of specs on the right (photo first on phones);
+   the rows use the same type as the "Special thanks" list */
+.specs-layout{
+  display:grid; grid-template-columns:minmax(0, 1.5fr) minmax(0, 1fr);
+  gap:clamp(28px, 5vw, 72px); align-items:stretch;
 }
+.specs-photo{ margin:0; min-height:280px; border-radius:6px; overflow:hidden; border:1px solid var(--panel-line); }
+.specs-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+/* (the language toggle makes the eyebrow inline, so the gap lives on the list) */
+.specs-grid{ display:flex; flex-direction:column; margin-top:14px; }
 .spec{
-  display:flex; flex-direction:column; gap:10px;
-  padding:clamp(20px, 2.2vw, 28px) 4px;
-  border-bottom:1px solid var(--panel-line);
+  display:grid; grid-template-columns:minmax(0, .9fr) minmax(0, 1.1fr); gap:14px; align-items:baseline;
+  padding:11px 0; border-bottom:1px solid var(--panel-line);
 }
-.spec .spec-label{
-  font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint);
-}
-.spec .spec-value{
-  font-family:var(--font-display); font-size:clamp(16px, 1.5vw, 18px); color:var(--ink);
-}
-@media (max-width: 1100px){ .specs-grid{ grid-template-columns:repeat(2, 1fr); } }
+.spec:first-child{ padding-top:0; }
+.spec .spec-label{ font-size:14.5px; color:var(--ink-faint); }
+.spec .spec-value{ font-size:14.5px; color:var(--ink-dim); }
+@media (max-width: 860px){ .specs-layout{ grid-template-columns:1fr; } .specs-photo{ min-height:0; aspect-ratio:16/9; } }
 
 /* ===========================================================
    THANKS / MATERIALS
@@ -1049,7 +1050,6 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
 }
 
 @media (max-width: 560px){
-  .specs-grid{ grid-template-columns:1fr; }
   .hero{ --hero-title-size:7vw; }
   .team-grid{ grid-template-columns:1fr; }
 }
