@@ -138,43 +138,52 @@
     });
   }
 
-  /* ---------------- Switch sound: a mechanical click in a large space (synthesised, no audio files) ---------------- */
-  function switchSound(){
+  /* ---------------- Shared audio: one context, a dry path plus a smooth large-space tail (no echoes) ---------------- */
+  var audioEngine = null;
+  // browsers only let sound start after a click / key / tap, so the engine is created (or resumed) on the first one
+  function audio(create){
+    if(audioEngine){
+      if(create && audioEngine.ctx.state === "suspended") audioEngine.ctx.resume();
+      return audioEngine;
+    }
+    if(!create) return null;
     var AC = window.AudioContext || window.webkitAudioContext;
-    if(!AC) return function(){};
-    var ctx = null, input = null;
-
-    // smooth, diffuse room tail: no distinct reflections, so it reads as space rather than echo
-    function hallImpulse(){
+    if(!AC) return null;
+    try{
+      var ctx = new AC();
+      // smooth, diffuse room tail: no distinct reflections, so it reads as space rather than echo
       var rate = ctx.sampleRate, len = Math.floor(rate * 2.4), fadeIn = Math.floor(rate * 0.03);
       var ir = ctx.createBuffer(2, len, rate);
       for(var ch = 0; ch < 2; ch++){
         var d = ir.getChannelData(ch), lp = 0;
         for(var i = 0; i < len; i++){
           var t = i / len;
-          // one-pole low-pass that closes over time: the tail darkens like air in a big hall
-          var k = 0.55 - 0.45 * t;
-          lp += ((Math.random() * 2 - 1) - lp) * k;
+          lp += ((Math.random() * 2 - 1) - lp) * (0.55 - 0.45 * t);   // the tail darkens like air in a big hall
           d[i] = lp * Math.exp(-5.2 * t) * Math.min(1, i / fadeIn);
         }
       }
-      return ir;
-    }
-
-    function setup(){
-      ctx = new AC();
-      input = ctx.createGain();
-      input.gain.value = 0.8;
-      var dry = ctx.createGain(); dry.gain.value = 1;
-      var hall = ctx.createConvolver(); hall.buffer = hallImpulse();
+      var input = ctx.createGain(); input.gain.value = 0.8;
+      var hall = ctx.createConvolver(); hall.buffer = ir;
       var lowCut = ctx.createBiquadFilter(); lowCut.type = "highpass"; lowCut.frequency.value = 300;
       var wet = ctx.createGain(); wet.gain.value = 0.55;
       var comp = ctx.createDynamicsCompressor();
-      input.connect(dry); dry.connect(comp);
+      input.connect(comp);
       input.connect(hall); hall.connect(lowCut); lowCut.connect(wet); wet.connect(comp);
       comp.connect(ctx.destination);
-    }
+      audioEngine = { ctx:ctx, input:input };
+    }catch(e){ return null; }
+    return audioEngine;
+  }
+  function initAudioUnlock(){
+    var unlock = function(){ audio(true); };
+    ["pointerdown", "keydown", "touchend"].forEach(function(ev){
+      document.addEventListener(ev, unlock, { passive:true, capture:true });
+    });
+  }
 
+  /* ---------------- Switch sound: a dry, bright click in that large space ---------------- */
+  function switchSound(){
+    var ctx, input;
     // one mechanical click: a very short, bright noise snap plus a tiny metallic tick (no low body, so no drum)
     function clack(at, pitch, level){
       var n = Math.floor(ctx.sampleRate * 0.012);
@@ -197,16 +206,59 @@
       tick.connect(tg); tg.connect(input);
       tick.start(at); tick.stop(at + 0.025);
     }
-
     return function(on){
       try{
-        if(!ctx) setup();
-        if(ctx.state === "suspended") ctx.resume();
+        var A = audio(true);
+        if(!A) return;
+        ctx = A.ctx; input = A.input;
         var t = ctx.currentTime + 0.01;
         // switching on is a firm double clack; switching off is a single, lower one
         if(on){ clack(t, 1, 0.9); clack(t + 0.028, 1.25, 0.45); }
         else  { clack(t, 0.85, 0.75); }
       }catch(e){}
+    };
+  }
+
+  /* ---------------- Sand / salt trickle that follows how much the particle text is being stirred ---------------- */
+  function sandVoice(){
+    var gain = null, src = null, level = 0;
+    function build(A){
+      var ctx = A.ctx, rate = ctx.sampleRate, len = Math.floor(rate * 4);
+      var buf = ctx.createBuffer(2, len, rate);
+      for(var ch = 0; ch < 2; ch++){
+        var d = buf.getChannelData(ch);
+        for(var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * 0.035;       // fine hiss of the stream
+        // thousands of tiny grains, now and then a coarser one
+        var grains = Math.floor(4 * 2600);
+        for(var g = 0; g < grains; g++){
+          var at = Math.floor(Math.random() * len);
+          var big = Math.random() < 0.06;
+          var amp = (big ? 0.5 : 0.18) * Math.pow(Math.random(), 2);
+          var gl = Math.floor(rate * (big ? 0.0012 : 0.0005));
+          for(var k = 0; k < gl && at + k < len; k++){
+            d[at + k] += (Math.random() * 2 - 1) * amp * Math.pow(1 - k / gl, 3);
+          }
+        }
+      }
+      src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+      var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 1400;
+      var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 7000;   // soften the edge
+      gain = ctx.createGain(); gain.gain.value = 0;
+      src.connect(hp); hp.connect(lp); lp.connect(gain); gain.connect(A.input);
+      src.start();
+    }
+    return {
+      // v: 0 (still) .. 1 (strongly stirred)
+      set: function(v){
+        var A = audio(false);
+        if(!A || A.ctx.state !== "running") return;
+        if(!gain) build(A);
+        if(Math.abs(v - level) < 0.01) return;
+        var now = A.ctx.currentTime;
+        gain.gain.setTargetAtTime(0.16 * Math.pow(v, 1.3), now, v > level ? 0.06 : 0.3);   // quick in, gentle fade out
+        src.playbackRate.setTargetAtTime(0.9 + v * 0.2, now, 0.2);
+        level = v;
+      }
     };
   }
 
@@ -555,6 +607,7 @@
     var FLOAT_SPEED = 0.35;
     var DRAFT = 0.18;      // particles get swept along the cursor's motion
     var DUST_FADE = 180;   // px of displacement at which a particle is most transparent
+    var SAND_FROM = 0.04, SAND_RANGE = 0.9;   // average particle speed (px/frame) mapped to the sand sound
 
     // Reflection (mirror below the title, like a water surface)
     var REFL_GAP = opt.reflGap || 6;
@@ -564,6 +617,7 @@
     var REFL_DAMPING = 0.84;
 
     var particles = [];
+    var sand = sandVoice();
     var running = false;
     var raf = null;
     var mouseX = -9999, mouseY = -9999;
@@ -703,6 +757,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
       ctx.scale(DPR, DPR);
+      var stir = 0, stirN = 0;
 
       for(var idx = 0; idx < particles.length; idx++){
         var p = particles[idx];
@@ -743,6 +798,7 @@
         p.vy = (p.vy + fy) * damping;
         p.x += p.vx;
         p.y += p.vy;
+        if(!p.refl){ stir += Math.abs(p.vx) + Math.abs(p.vy); stirN++; }
 
         var twinkle = 0.68 + 0.32 * Math.sin(t * p.flick + p.ph);
         // scattered dust thins out the further it drifts from home
@@ -763,6 +819,9 @@
         ctx.fillRect(drawX - s / 2, p.y - s / 2, s, s);
       }
       ctx.restore();
+      // the more the letters are being blown about, the more sand you hear pouring
+      var avg = stirN ? stir / stirN : 0;
+      sand.set(Math.max(0, Math.min(1, (avg - SAND_FROM) / SAND_RANGE)));
     }
 
     function loop(){
@@ -779,6 +838,7 @@
     }
     function stop(){
       running = false;
+      sand.set(0);
       if(raf){ cancelAnimationFrame(raf); raf = null; }
     }
 
@@ -888,6 +948,7 @@
     initHeader();
     initReveal();
     initParticles();
+    initAudioUnlock();
     initExperience();
     initVideoEmbed();
     initHeroParticles();
