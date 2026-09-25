@@ -12,7 +12,7 @@
 <meta property="og:description" content="Інтерактивний VR-проєкт про пам'ять, втрату та присутність. Створено на основі особистого досвіду перебування у Соледарі." />
 <meta property="og:image" content="img/poster-ua.jpg" />
 <meta name="twitter:card" content="summary_large_image" />
-<link rel="stylesheet" href="css/style.css?v=54" />
+<link rel="stylesheet" href="css/style.css?v=55" />
 </head>
 <body>
 
@@ -109,11 +109,14 @@
       <div class="about-video reveal">
         <span class="eyebrow" data-lang="ua">Тизер</span>
         <span class="eyebrow" data-lang="en">Teaser</span>
-        <div class="video-embed" data-yt-id="gUtgxPe5Ew0">
-          <img class="video-embed-thumb" src="https://img.youtube.com/vi/gUtgxPe5Ew0/maxresdefault.jpg" alt="Тизер «Віддзеркалення»" loading="lazy" />
-          <button class="video-embed-play" type="button" aria-label="Play teaser video">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </button>
+        <!-- wireframe box around the teaser; its vanishing point sits below the video -->
+        <div class="video-frame wf-grid wf-card" data-vp="0.5,1.5">
+          <div class="video-embed" data-yt-id="gUtgxPe5Ew0">
+            <img class="video-embed-thumb" src="https://img.youtube.com/vi/gUtgxPe5Ew0/maxresdefault.jpg" alt="Тизер «Віддзеркалення»" loading="lazy" />
+            <button class="video-embed-play" type="button" aria-label="Play teaser video">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -440,6 +443,6 @@
   </div>
 </footer>
 
-<script src="js/main.js?v=35"></script>
+<script src="js/main.js?v=36"></script>
 </body>
 </html>

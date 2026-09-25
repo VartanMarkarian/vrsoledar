@@ -515,7 +515,8 @@
       // in the middle of its grid (for four in a row: between the 2nd and 3rd card)
       var grid = card.closest(".wf-grid") || card.parentNode;
       var gr = grid.getBoundingClientRect(), cr = card.getBoundingClientRect();
-      var vx = gr.left + gr.width / 2 - cr.left + M, vy = gr.top + gr.height / 2 - cr.top + M;
+      var vp = (grid.getAttribute("data-vp") || "0.5,0.5").split(",");   // vanishing point as a fraction of the grid
+      var vx = gr.left + gr.width * +vp[0] - cr.left + M, vy = gr.top + gr.height * +vp[1] - cr.top + M;
       var sc = 1 - DEPTH;
       var bL = vx + (L - vx) * sc, bR = vx + (R - vx) * sc, bT = vy + (T - vy) * sc, bB = vy + (B - vy) * sc;
       var vpRight = vx > (L + R) / 2, vpBelow = vy > (T + B) / 2;
@@ -546,14 +547,39 @@
       card.insertBefore(svg, card.firstChild);
     }
 
-    function drawAll(){ cards.forEach(draw); }
+    var grids = [];
+    cards.forEach(function(c){ var g = c.closest(".wf-grid"); if(g && grids.indexOf(g) < 0) grids.push(g); });
+
+    // redrawing (fonts, resize) must not replay the drawing on boxes already on screen
+    function drawAll(){
+      grids.forEach(function(g){ if(g.classList.contains("wf-play")) g.classList.add("wf-now"); });
+      cards.forEach(draw);
+    }
     drawAll();
     var t;
-    window.addEventListener("resize", function(){
-      clearTimeout(t);
-      t = setTimeout(function(){ document.documentElement.classList.add("wf-drawn"); drawAll(); }, 150);
-    });
+    window.addEventListener("resize", function(){ clearTimeout(t); t = setTimeout(drawAll, 150); });
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawAll);
+
+    // the lines draw themselves in every time a group scrolls into view, and reset once it has left
+    if("IntersectionObserver" in window){
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          var g = e.target;
+          if(e.isIntersecting && e.intersectionRatio >= 0.15){
+            if(!g.classList.contains("wf-play")){
+              g.classList.remove("wf-now");
+              void g.offsetWidth;                 // restart the CSS animation
+              g.classList.add("wf-play");
+            }
+          }else if(!e.isIntersecting){
+            g.classList.remove("wf-play", "wf-now");
+          }
+        });
+      }, { threshold:[0, 0.15] });
+      grids.forEach(function(g){ io.observe(g); });
+    }else{
+      grids.forEach(function(g){ g.classList.add("wf-play", "wf-now"); });
+    }
   }
 
   /* ---------------- Hero title: living particle field (spring physics + cursor repulsion) ---------------- */

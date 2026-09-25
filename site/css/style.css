@@ -430,6 +430,8 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
 /* ===========================================================
    VIDEO EMBED (used inside About)
    =========================================================== */
+/* the wireframe box sits behind the video, so only its outer lines show */
+.video-frame .video-embed{ z-index:1; }
 .video-embed{
   position:relative; width:100%; aspect-ratio:16/9;
   border-radius:8px; overflow:hidden; cursor:pointer;
@@ -699,12 +701,12 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
 .wf .wf-back{ stroke:rgba(200,218,255,.38); stroke-width:1; }
 .wf .wf-inner{ stroke:rgba(225,236,255,.28); stroke-width:1; }
 .wf .wf-ray{ stroke:rgba(200,218,255,.2); stroke-width:1; }
-.wf-grid.is-in .wf line{ animation:wf-draw .9s var(--ease) forwards; animation-delay:var(--d); }
-.wf-grid.is-in .wf .wf-dash{ animation-name:wf-draw-dash; }
+.wf-grid.wf-play .wf line{ animation:wf-draw .9s var(--ease) forwards; animation-delay:var(--d); }
+.wf-grid.wf-play .wf .wf-dash{ animation-name:wf-draw-dash; }
 @keyframes wf-draw{ to{ stroke-dashoffset:0; } }
 @keyframes wf-draw-dash{ 0%{ stroke-dasharray:.012 .018; stroke-dashoffset:1; opacity:0; } 100%{ stroke-dasharray:.012 .018; stroke-dashoffset:0; opacity:1; } }
-.wf-drawn .wf-grid .wf line{ animation:none; stroke-dashoffset:0; }
-.wf-drawn .wf-grid .wf .wf-dash{ stroke-dasharray:.012 .018; }
+.wf-grid.wf-now .wf line{ animation:none; stroke-dashoffset:0; }
+.wf-grid.wf-now .wf .wf-dash{ stroke-dasharray:.012 .018; opacity:1; }
 .wf-card:hover .wf{ filter:drop-shadow(0 0 3px rgba(170,205,255,.8)) brightness(1.35); }
 @media (prefers-reduced-motion: reduce){
   .wf-grid .wf line{ animation:none !important; stroke-dashoffset:0; }
