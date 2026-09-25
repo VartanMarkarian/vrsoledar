@@ -138,54 +138,18 @@
     });
   }
 
-  /* ---------------- Switch sound: a mechanical clack echoing in a cave (synthesised, no audio files) ---------------- */
+  /* ---------------- Switch sound: a dry mechanical clack (synthesised, no audio files) ---------------- */
   function switchSound(){
     var AC = window.AudioContext || window.webkitAudioContext;
     if(!AC) return function(){};
     var ctx = null, input = null;
 
-    // cave impulse response: a few early wall reflections, then a long, dark, slowly dying tail
-    function caveImpulse(){
-      var rate = ctx.sampleRate, len = Math.floor(rate * 3.6);
-      var ir = ctx.createBuffer(2, len, rate);
-      for(var ch = 0; ch < 2; ch++){
-        var d = ir.getChannelData(ch);
-        for(var i = 0; i < len; i++){
-          var t = i / len;
-          d[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 3.2) * 0.55;
-        }
-        [0.043, 0.071, 0.118, 0.164, 0.231].forEach(function(sec, k){
-          var at = Math.floor((sec + (ch ? 0.009 : 0)) * rate);
-          d[at] += (k % 2 ? -1 : 1) * (0.7 - k * 0.1);
-        });
-      }
-      return ir;
-    }
-
     function setup(){
       ctx = new AC();
       input = ctx.createGain();
-
-      var dry = ctx.createGain(); dry.gain.value = 0.75;
-
-      var reverb = ctx.createConvolver(); reverb.buffer = caveImpulse();
-      var dark = ctx.createBiquadFilter(); dark.type = "lowpass"; dark.frequency.value = 3200;
-      var wet = ctx.createGain(); wet.gain.value = 0.7;
-
-      // distinct echoes off the far wall, each a little duller than the last
-      var delay = ctx.createDelay(2); delay.delayTime.value = 0.34;
-      var fb = ctx.createGain(); fb.gain.value = 0.38;
-      var echoTone = ctx.createBiquadFilter(); echoTone.type = "lowpass"; echoTone.frequency.value = 2200;
-      var echo = ctx.createGain(); echo.gain.value = 0.32;
-
-      var master = ctx.createGain(); master.gain.value = 0.8;
+      input.gain.value = 0.8;
       var comp = ctx.createDynamicsCompressor();
-
-      input.connect(dry); dry.connect(master);
-      input.connect(reverb); reverb.connect(dark); dark.connect(wet); wet.connect(master);
-      input.connect(delay); delay.connect(echoTone); echoTone.connect(fb); fb.connect(delay);
-      echoTone.connect(echo); echo.connect(reverb); echo.connect(master);
-      master.connect(comp); comp.connect(ctx.destination);
+      input.connect(comp); comp.connect(ctx.destination);
     }
 
     // one mechanical transient: a bright noise snap plus a short low knock of the plate
