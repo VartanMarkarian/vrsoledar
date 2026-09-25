@@ -337,6 +337,8 @@
     if(!cards.length) return;
     var NS = "http://www.w3.org/2000/svg";
     var M = 28;                                    // room around the card for overshooting lines and the depth box
+    var DEPTH = 0.11;                              // how far the back face recedes towards the vanishing point
+    var grid = document.querySelector(".team-grid");
 
     function rng(seed){                            // small deterministic PRNG, so each card keeps its own sketch
       return function(){ seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
@@ -375,18 +377,24 @@
         }
       }
       var L = M, T = M, R = M + W, B = M + H;
-      // back face of the box: up and to the right, a touch smaller -> perspective depth
-      var dx = 14 + r() * 8, dy = -(14 + r() * 8), k = 0.035;
-      var bL = L + W * k + dx, bR = R - W * k + dx, bT = T + H * k + dy, bB = B - H * k + dy;
+      // back face of the box: one-point perspective, every box recedes towards the same vanishing point
+      // in the middle of the team grid (between the 2nd and 3rd card)
+      var gr = grid.getBoundingClientRect(), cr = card.getBoundingClientRect();
+      var vx = gr.left + gr.width / 2 - cr.left + M, vy = gr.top + gr.height / 2 - cr.top + M;
+      var sc = 1 - DEPTH;
+      var bL = vx + (L - vx) * sc, bR = vx + (R - vx) * sc, bT = vy + (T - vy) * sc, bB = vy + (B - vy) * sc;
+      var vpRight = vx > (L + R) / 2, vpBelow = vy > (T + B) / 2;
 
-      edge(bL, bT, bR, bT, "wf-back", false);
-      edge(bR, bT, bR, bB, "wf-back", false);
-      edge(bL, bT, bL, bB, "wf-back wf-dash", false);
-      edge(bL, bB, bR, bB, "wf-back wf-dash", false);
-      edge(L, T, bL, bT, "wf-back", false);
-      edge(R, T, bR, bT, "wf-back", false);
-      edge(R, B, bR, bB, "wf-back", false);
-      edge(L, B, bL, bB, "wf-back wf-dash", false);
+      // edges of the back face on the far side from the vanishing point read as hidden -> dashed
+      edge(bL, bT, bR, bT, vpBelow ? "wf-back wf-dash" : "wf-back", false);
+      edge(bL, bB, bR, bB, vpBelow ? "wf-back" : "wf-back wf-dash", false);
+      edge(bL, bT, bL, bB, vpRight ? "wf-back wf-dash" : "wf-back", false);
+      edge(bR, bT, bR, bB, vpRight ? "wf-back" : "wf-back wf-dash", false);
+      [[L, T, bL, bT], [R, T, bR, bT], [R, B, bR, bB], [L, B, bL, bB]].forEach(function(c){
+        edge(c[0], c[1], c[2], c[3], "wf-back", false);
+        // faint guide ray carrying on towards the vanishing point
+        line(c[2], c[3], c[2] + (vx - c[2]) * 0.35, c[3] + (vy - c[3]) * 0.35, "wf-ray wf-dash");
+      });
 
       edge(L, T, R, T, "wf-front", true);
       edge(R, T, R, B, "wf-front", true);

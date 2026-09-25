@@ -694,6 +694,7 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
 .wf .wf-thin{ stroke:rgba(225,236,255,.4); stroke-width:.8; }
 .wf .wf-back{ stroke:rgba(200,218,255,.38); stroke-width:1; }
 .wf .wf-inner{ stroke:rgba(225,236,255,.28); stroke-width:1; }
+.wf .wf-ray{ stroke:rgba(200,218,255,.2); stroke-width:1; }
 .team-grid.is-in .wf line{ animation:wf-draw .9s var(--ease) forwards; animation-delay:var(--d); }
 .team-grid.is-in .wf .wf-dash{ animation-name:wf-draw-dash; }
 @keyframes wf-draw{ to{ stroke-dashoffset:0; } }
