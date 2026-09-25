@@ -678,7 +678,12 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
   align-items:center; justify-content:center;
   position:relative;
 }
-.team-glyph{ width:34px; height:34px; opacity:.85; }
+/* portrait footage: a looping clip whose dark square edges melt into the card */
+.team-portrait{
+  width:clamp(110px, 9vw, 140px); aspect-ratio:1; object-fit:cover; display:block;
+  -webkit-mask-image:radial-gradient(closest-side, #000 62%, transparent 100%);
+          mask-image:radial-gradient(closest-side, #000 62%, transparent 100%);
+}
 .team-card .role{
   font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-faint);
 }

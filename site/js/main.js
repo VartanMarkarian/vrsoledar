@@ -466,6 +466,25 @@
     } else { visible = true; kick(); }
   }
 
+  /* ---------------- Team portraits: loop only while visible, stay still for reduced motion ---------------- */
+  function initTeamPortraits(){
+    var vids = Array.prototype.slice.call(document.querySelectorAll(".team-portrait"));
+    if(!vids.length) return;
+    if(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+      vids.forEach(function(v){ v.removeAttribute("autoplay"); v.pause(); });
+      return;
+    }
+    if(!("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        var v = e.target;
+        if(e.isIntersecting){ var p = v.play(); if(p && p.catch) p.catch(function(){}); }
+        else v.pause();
+      });
+    }, { rootMargin:"100px 0px" });
+    vids.forEach(function(v){ io.observe(v); });
+  }
+
   /* ---------------- Team & spec cards: hand-drawn wireframe boxes (like the VR scene and the mine cart) ---------------- */
   function initWireFrames(){
     var cards = Array.prototype.slice.call(document.querySelectorAll(".wf-card"));
@@ -990,5 +1009,6 @@
     initQuoteParticles();
     initOrbit();
     initWireFrames();
+    initTeamPortraits();
   });
 })();
