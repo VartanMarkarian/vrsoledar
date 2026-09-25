@@ -892,6 +892,75 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
 }
 
 /* ===========================================================
+   TOUR PAGE: square photo + its text, two objects per row; enlarged viewer
+   =========================================================== */
+.tour{ padding-top:clamp(20px, 3vw, 40px); }
+.tour-grid{
+  display:grid; grid-template-columns:repeat(2, 1fr);
+  gap:clamp(34px, 4vw, 56px) clamp(28px, 4vw, 56px);
+}
+.tour-item{
+  display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:clamp(16px, 2vw, 26px);
+  align-items:start;
+}
+.tour-photo{
+  display:block; width:100%; aspect-ratio:1; padding:0; border:1px solid var(--panel-line); border-radius:4px;
+  overflow:hidden; background:var(--panel); cursor:zoom-in;
+}
+.tour-photo img{
+  width:100%; height:100%; object-fit:cover; display:block;
+  filter:brightness(.9); transition:transform .7s var(--ease), filter .4s ease;
+}
+.tour-photo:hover img, .tour-photo:focus-visible img{ transform:scale(1.05); filter:brightness(1.05); }
+.tour-photo:focus-visible{ outline:2px solid rgba(255,191,143,.7); outline-offset:3px; }
+.tour-text{ display:flex; flex-direction:column; gap:10px; padding-top:4px; }
+.tour-n{ font-family:var(--font-display); font-size:11px; letter-spacing:.2em; color:var(--amber-soft); }
+.tour-text h3{ font-family:var(--font-display); font-weight:500; font-size:clamp(16px, 1.5vw, 19px); color:var(--ink); line-height:1.3; }
+.tour-text p{ font-size:14px; line-height:1.65; color:var(--ink-dim); }
+@media (max-width: 1100px){ .tour-grid{ grid-template-columns:1fr; } }
+@media (max-width: 560px){ .tour-item{ grid-template-columns:1fr; } }   /* photo, then its text below */
+
+.tour-box{
+  position:fixed; inset:0; z-index:300;
+  background:rgba(3,3,5,.95);
+  display:flex; align-items:center; justify-content:center;
+  padding:clamp(56px, 6vw, 80px) clamp(16px, 4vw, 56px) clamp(24px, 4vw, 56px);
+  opacity:0; transition:opacity .3s ease;
+}
+.tour-box[hidden]{ display:none; }
+.tour-box.is-open{ opacity:1; }
+.tour-box-inner{
+  width:100%; max-width:1380px; max-height:100%;
+  display:grid; grid-template-columns:minmax(0, 1fr) clamp(240px, 24vw, 340px); gap:clamp(20px, 3vw, 44px);
+  align-items:center;
+}
+.tour-box-media{ position:relative; }
+.tour-box-media img{ width:100%; max-height:calc(100vh - 150px); object-fit:contain; display:block; border-radius:4px; }
+.tour-box-text{ display:flex; flex-direction:column; gap:12px; max-height:calc(100vh - 150px); overflow:auto; }
+.tour-box-text h3{ font-family:var(--font-display); font-weight:500; font-size:clamp(20px, 2vw, 26px); color:var(--ink); }
+.tour-box-text p{ font-size:15px; line-height:1.7; color:var(--ink-dim); }
+.tour-box-count{ font-family:var(--font-display); font-size:11px; letter-spacing:.2em; color:var(--amber-soft); }
+.tour-box-close, .tour-box-prev, .tour-box-next{
+  position:absolute; width:46px; height:46px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  background:rgba(10,10,12,.7); border:1px solid var(--panel-line); color:var(--ink);
+  transition:border-color .3s, background .3s;
+}
+.tour-box-close:hover, .tour-box-prev:hover, .tour-box-next:hover{ border-color:var(--amber-soft); background:rgba(20,16,14,.85); }
+.tour-box-close svg, .tour-box-prev svg, .tour-box-next svg{ width:18px; height:18px; }
+.tour-box-close{ top:14px; right:14px; }
+.tour-box-prev{ left:12px; top:50%; transform:translateY(-50%); }
+.tour-box-next{ right:12px; top:50%; transform:translateY(-50%); }
+@media (max-width: 760px){
+  /* phones: photo on top, its text underneath */
+  .tour-box{ align-items:flex-start; overflow:auto; }
+  .tour-box-inner{ grid-template-columns:1fr; }
+  .tour-box-media img{ max-height:none; }
+  .tour-box-text{ max-height:none; overflow:visible; }
+  .tour-box-prev, .tour-box-next{ width:40px; height:40px; }
+}
+
+/* ===========================================================
    RESPONSIVE
    =========================================================== */
 @media (max-width: 980px){

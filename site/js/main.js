@@ -466,6 +466,66 @@
     } else { visible = true; kick(); }
   }
 
+  /* ---------------- Tour page: enlarged viewer with the object's text, arrows / keys / swipe ---------------- */
+  function initTourViewer(){
+    var items = Array.prototype.slice.call(document.querySelectorAll(".tour-item"));
+    var box = document.querySelector(".tour-box");
+    if(!items.length || !box) return;
+    var img = box.querySelector(".tour-box-media img");
+    var text = box.querySelector(".tour-box-text");
+    var current = 0, lastFocus = null;
+
+    function show(i){
+      current = (i + items.length) % items.length;
+      var it = items[current];
+      img.src = it.getAttribute("data-full");
+      img.alt = it.querySelector(".tour-photo img").alt;
+      // the text column mirrors the card: both languages, the site's toggle shows the active one
+      var src = it.querySelector(".tour-text");
+      text.innerHTML = '<span class="tour-box-count">' + (current + 1 < 10 ? "0" : "") + (current + 1) + " / " + items.length + "</span>";
+      Array.prototype.forEach.call(src.children, function(el){ if(!el.classList.contains("tour-n")) text.appendChild(el.cloneNode(true)); });
+      // warm the neighbours so the arrows feel instant
+      [current - 1, current + 1].forEach(function(k){ var n = items[(k + items.length) % items.length]; (new Image()).src = n.getAttribute("data-full"); });
+    }
+    function open(i){
+      lastFocus = document.activeElement;
+      show(i);
+      box.hidden = false;
+      requestAnimationFrame(function(){ box.classList.add("is-open"); });
+      document.body.style.overflow = "hidden";
+      box.querySelector(".tour-box-close").focus();
+    }
+    function close(){
+      box.classList.remove("is-open");
+      document.body.style.overflow = "";
+      setTimeout(function(){ box.hidden = true; img.src = ""; }, 300);
+      if(lastFocus) lastFocus.focus();
+    }
+
+    items.forEach(function(it, i){
+      it.querySelector(".tour-photo").addEventListener("click", function(){ open(i); });
+    });
+    box.querySelector(".tour-box-close").addEventListener("click", close);
+    box.querySelector(".tour-box-prev").addEventListener("click", function(){ show(current - 1); });
+    box.querySelector(".tour-box-next").addEventListener("click", function(){ show(current + 1); });
+    box.addEventListener("click", function(e){ if(e.target === box) close(); });
+    document.addEventListener("keydown", function(e){
+      if(box.hidden) return;
+      if(e.key === "Escape") close();
+      else if(e.key === "ArrowRight") show(current + 1);
+      else if(e.key === "ArrowLeft") show(current - 1);
+    });
+    // swipe on touch screens
+    var sx = null, sy = 0;
+    img.addEventListener("touchstart", function(e){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive:true });
+    img.addEventListener("touchend", function(e){
+      if(sx === null) return;
+      var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) show(current + (dx < 0 ? 1 : -1));
+      sx = null;
+    });
+  }
+
   /* ---------------- Team portraits: loop only while visible, stay still for reduced motion ---------------- */
   function initTeamPortraits(){
     var vids = Array.prototype.slice.call(document.querySelectorAll(".team-portrait"));
@@ -1010,5 +1070,6 @@
     initOrbit();
     initWireFrames();
     initTeamPortraits();
+    initTourViewer();
   });
 })();
