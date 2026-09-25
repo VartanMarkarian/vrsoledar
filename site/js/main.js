@@ -167,10 +167,11 @@
       var lowCut = ctx.createBiquadFilter(); lowCut.type = "highpass"; lowCut.frequency.value = 300;
       var wet = ctx.createGain(); wet.gain.value = 0.55;
       var comp = ctx.createDynamicsCompressor();
+      var space = ctx.createGain();                                   // send that only reaches the hall tail
       input.connect(comp);
-      input.connect(hall); hall.connect(lowCut); lowCut.connect(wet); wet.connect(comp);
+      input.connect(hall); space.connect(hall); hall.connect(lowCut); lowCut.connect(wet); wet.connect(comp);
       comp.connect(ctx.destination);
-      audioEngine = { ctx:ctx, input:input };
+      audioEngine = { ctx:ctx, input:input, space:space };
     }catch(e){ return null; }
     return audioEngine;
   }
@@ -227,24 +228,31 @@
       var buf = ctx.createBuffer(2, len, rate);
       for(var ch = 0; ch < 2; ch++){
         var d = buf.getChannelData(ch);
-        for(var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * 0.035;       // fine hiss of the stream
-        // thousands of tiny grains, now and then a coarser one
-        var grains = Math.floor(4 * 2600);
+        // a soft, uneven flow: noise whose loudness drifts slowly
+        var flow = 0.7, target = 0.7;
+        for(var i = 0; i < len; i++){
+          if(i % 2048 === 0) target = 0.45 + Math.random() * 0.55;
+          flow += (target - flow) * 0.0004;
+          d[i] = (Math.random() * 2 - 1) * 0.12 * flow;
+        }
+        // very many, very fine grains that blur into the flow instead of standing out as pebbles
+        var grains = 4 * 18000;
         for(var g = 0; g < grains; g++){
           var at = Math.floor(Math.random() * len);
-          var big = Math.random() < 0.06;
-          var amp = (big ? 0.5 : 0.18) * Math.pow(Math.random(), 2);
-          var gl = Math.floor(rate * (big ? 0.0012 : 0.0005));
-          for(var k = 0; k < gl && at + k < len; k++){
-            d[at + k] += (Math.random() * 2 - 1) * amp * Math.pow(1 - k / gl, 3);
-          }
+          var amp = 0.05 * Math.random();
+          var gl = Math.floor(rate * 0.00025) + 1;
+          for(var k = 0; k < gl && at + k < len; k++) d[at + k] += (Math.random() * 2 - 1) * amp * (1 - k / gl);
         }
       }
       src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
-      var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 1400;
-      var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 7000;   // soften the edge
+      var hp = ctx.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 500;
+      var lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2600; lp.Q.value = 0.4;  // muffled, no crisp edge
       gain = ctx.createGain(); gain.gain.value = 0;
-      src.connect(hp); hp.connect(lp); lp.connect(gain); gain.connect(A.input);
+      var dry = ctx.createGain(); dry.gain.value = 0.35;       // mostly heard through the space, so it stays atmospheric
+      var send = ctx.createGain(); send.gain.value = 1;
+      src.connect(hp); hp.connect(lp); lp.connect(gain);
+      gain.connect(dry); dry.connect(A.input);
+      gain.connect(send); send.connect(A.space);
       src.start();
     }
     return {
@@ -255,8 +263,8 @@
         if(!gain) build(A);
         if(Math.abs(v - level) < 0.01) return;
         var now = A.ctx.currentTime;
-        gain.gain.setTargetAtTime(0.16 * Math.pow(v, 1.3), now, v > level ? 0.06 : 0.3);   // quick in, gentle fade out
-        src.playbackRate.setTargetAtTime(0.9 + v * 0.2, now, 0.2);
+        gain.gain.setTargetAtTime(0.22 * Math.pow(v, 1.3), now, v > level ? 0.12 : 0.45);  // soft swell in, long fade out
+        src.playbackRate.setTargetAtTime(0.92 + v * 0.12, now, 0.3);
         level = v;
       }
     };
