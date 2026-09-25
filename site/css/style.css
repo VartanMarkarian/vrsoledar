@@ -801,6 +801,11 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
 }
 .history-cta h3{ font-family:var(--font-display); font-size:clamp(20px,2.6vw,28px); font-weight:600; max-width:22ch; }
 .history-cta p{ color:var(--ink-dim); margin-top:10px; max-width:44ch; font-size:14.5px; }
+/* phones: the plaque stacks and everything is centred, the cart button included */
+@media (max-width: 760px){
+  .history-cta{ flex-direction:column; align-items:center; text-align:center; }
+  .history-cta h3, .history-cta p{ margin-left:auto; margin-right:auto; }
+}
 /* "Read the story" button drawn as the wireframe mine cart; the label sits in the cart's empty side panel */
 .btn-vagon{
   position:relative; display:block; flex:none;
@@ -984,5 +989,4 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
   .specs-grid{ grid-template-columns:1fr; }
   .hero{ --hero-title-size:7vw; }
   .team-grid{ grid-template-columns:1fr; }
-  .history-cta{ flex-direction:column; align-items:flex-start; }
 }
