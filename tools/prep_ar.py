@@ -14,6 +14,11 @@ turn = float(argv[4]) if len(argv) > 4 else 0.0   # around the vertical, so the 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 
+# only the model itself goes to AR: drop cameras, lights and empties that came with the file
+for o in list(bpy.context.scene.objects):
+    if o.type != 'MESH':
+        bpy.data.objects.remove(o, do_unlink=True)
+
 objs = [o for o in bpy.context.scene.objects if o.type == 'MESH']
 for o in bpy.context.scene.objects:
     o.select_set(o in objs)
