@@ -886,7 +886,9 @@ html[data-active-lang="en"] [data-lang="ua"]{ display:none !important; }
   border-bottom:1px solid var(--panel-line);
 }
 .history-hero h1{
-  font-family:var(--font-display); font-weight:600; font-size:clamp(32px,6vw,64px); line-height:1.08; max-width:16ch;
+  /* two even lines: "Від першої зустрічі / до «Віддзеркалення»", small enough that neither line breaks again */
+  font-family:var(--font-display); font-weight:600; font-size:clamp(24px, 5.4vw, 60px); line-height:1.12;
+  max-width:none; text-wrap:balance; margin-top:.35em;
 }
 .history-hero p.lead{
   margin-top:20px; color:var(--ink-dim); font-size:17px; max-width:60ch; font-weight:300;
