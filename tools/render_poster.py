@@ -12,11 +12,9 @@ az_deg = float(argv[3]) if len(argv) > 3 else 35.0
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 objs = [o for o in bpy.context.scene.objects if o.type == 'MESH']
-# frame the object itself, not the glow planes around it (their materials are named glow_*)
-body = [o for o in objs if not any(m and m.name.startswith("glow") for m in o.data.materials)] or objs
 
 lo = mathutils.Vector((1e9,) * 3); hi = -lo
-for o in body:
+for o in objs:
     for v in o.data.vertices:
         w = o.matrix_world @ v.co
         lo = mathutils.Vector(map(min, lo, w)); hi = mathutils.Vector(map(max, hi, w))
