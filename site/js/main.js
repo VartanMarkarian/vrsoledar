@@ -533,6 +533,64 @@
     }
   }
 
+  /* ---------------- Story page: photo strips with arrows, and an enlarged view ---------------- */
+  function initStoryGalleries(){
+    var gals = Array.prototype.slice.call(document.querySelectorAll(".sgal"));
+    var box = document.querySelector(".sbox");
+    if(!gals.length || !box) return;
+    var img = box.querySelector("img"), count = box.querySelector(".sbox-count");
+    var list = [], current = 0, lastFocus = null;
+
+    function show(i){
+      current = (i + list.length) % list.length;
+      img.src = list[current].getAttribute("data-full");
+      img.alt = list[current].querySelector("img").alt;
+      count.textContent = (current + 1) + " / " + list.length;
+      [current - 1, current + 1].forEach(function(k){ (new Image()).src = list[(k + list.length) % list.length].getAttribute("data-full"); });
+    }
+    function open(items, i){
+      list = items; lastFocus = document.activeElement;
+      show(i);
+      box.hidden = false;
+      requestAnimationFrame(function(){ box.classList.add("is-open"); });
+      document.body.style.overflow = "hidden";
+      box.querySelector(".sbox-close").focus();
+    }
+    function close(){
+      box.classList.remove("is-open");
+      document.body.style.overflow = "";
+      setTimeout(function(){ box.hidden = true; img.src = ""; }, 300);
+      if(lastFocus) lastFocus.focus();
+    }
+
+    gals.forEach(function(g){
+      var track = g.querySelector(".sgal-track");
+      var items = Array.prototype.slice.call(g.querySelectorAll(".sgal-item"));
+      items.forEach(function(it, i){ it.addEventListener("click", function(){ open(items, i); }); });
+      var step = function(dir){ track.scrollBy({ left:dir * track.clientWidth * 0.8, behavior:"smooth" }); };
+      g.querySelector(".sgal-prev").addEventListener("click", function(){ step(-1); });
+      g.querySelector(".sgal-next").addEventListener("click", function(){ step(1); });
+    });
+    box.querySelector(".sbox-close").addEventListener("click", close);
+    box.querySelector(".sbox-prev").addEventListener("click", function(){ show(current - 1); });
+    box.querySelector(".sbox-next").addEventListener("click", function(){ show(current + 1); });
+    box.addEventListener("click", function(e){ if(e.target === box) close(); });
+    document.addEventListener("keydown", function(e){
+      if(box.hidden) return;
+      if(e.key === "Escape") close();
+      else if(e.key === "ArrowRight") show(current + 1);
+      else if(e.key === "ArrowLeft") show(current - 1);
+    });
+    var sx = null, sy = 0;
+    img.addEventListener("touchstart", function(e){ sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive:true });
+    img.addEventListener("touchend", function(e){
+      if(sx === null) return;
+      var dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+      if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) show(current + (dx < 0 ? 1 : -1));
+      sx = null;
+    });
+  }
+
   /* ---------------- Tour page: enlarged viewer with the object's text, arrows / keys / swipe ---------------- */
   function initTourViewer(){
     var items = Array.prototype.slice.call(document.querySelectorAll(".tour-item"));
@@ -1124,6 +1182,7 @@
     initOrbit();
     initWireFrames();
     initTourViewer();
+    initStoryGalleries();
     initArPage();
   });
 })();
