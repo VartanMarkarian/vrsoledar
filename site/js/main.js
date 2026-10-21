@@ -522,8 +522,12 @@
       img.alt = it.querySelector(".tour-photo img").alt;
       // the text column mirrors the card: both languages, the site's toggle shows the active one
       var src = it.querySelector(".tour-text");
-      text.innerHTML = '<span class="tour-box-count">' + (current + 1 < 10 ? "0" : "") + (current + 1) + " / " + items.length + "</span>";
-      Array.prototype.forEach.call(src.children, function(el){ if(!el.classList.contains("tour-n")) text.appendChild(el.cloneNode(true)); });
+      var label = src.querySelector(".tour-n");
+      text.innerHTML = '<span class="tour-box-count">' + (label ? label.textContent : current + 1) + " · " + (current + 1) + " / " + items.length + "</span>";
+      Array.prototype.forEach.call(src.children, function(el){
+        if(!el.classList.contains("tour-n") && !el.classList.contains("tour-more")) text.appendChild(el.cloneNode(true));
+      });
+      text.scrollTop = 0;
       // warm the neighbours so the arrows feel instant
       [current - 1, current + 1].forEach(function(k){ var n = items[(k + items.length) % items.length]; (new Image()).src = n.getAttribute("data-full"); });
     }
@@ -544,6 +548,8 @@
 
     items.forEach(function(it, i){
       it.querySelector(".tour-photo").addEventListener("click", function(){ open(i); });
+      var more = it.querySelector(".tour-more");
+      if(more) more.addEventListener("click", function(){ open(i); });
     });
     box.querySelector(".tour-box-close").addEventListener("click", close);
     box.querySelector(".tour-box-prev").addEventListener("click", function(){ show(current - 1); });
