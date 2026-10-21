@@ -476,18 +476,45 @@
     var items = Array.prototype.slice.call(document.querySelectorAll(".ar-item"));
     if(!items.length) return;
     var page = location.origin + location.pathname;
+    // inside the Claude preview the page runs in a frame on its own domain: point phones at the preview link instead
+    var framed = window.self !== window.top;
+    var PREVIEW_URL = "https://claude.ai/artifact/UFcAhSLf8DBxmKkeALYYyA";
 
     // each QR code opens this page on the phone straight at its object
     Array.prototype.forEach.call(document.querySelectorAll(".ar-qr-code"), function(box){
       if(typeof window.qrcode !== "function") return;
       var qr = window.qrcode(0, "M");
-      qr.addData(page + "#" + box.getAttribute("data-model"));
+      qr.addData(framed ? PREVIEW_URL : page + "#" + box.getAttribute("data-model"));
       qr.make();
       box.innerHTML = qr.createSvgTag({ cellSize:4, margin:2, scalable:true });
     });
 
+    // model source: the real GLB (+ USDZ for iPhone) where the host serves them; where it doesn't
+    // (the Claude preview only serves web types) a base64 copy is decoded into a blob, AR then runs
+    // through WebXR on Android and a USDZ that model-viewer builds itself on iPhone
+    function useModel(mv){
+      var glb = mv.getAttribute("data-glb"), usdz = mv.getAttribute("data-usdz");
+      return fetch(glb, { method:"HEAD" }).then(function(r){
+        var type = r.headers.get("content-type") || "";
+        if(!r.ok || type.indexOf("text/html") === 0) throw new Error("no glb");
+        if(usdz) mv.setAttribute("ios-src", usdz);
+        mv.src = glb;
+      }).catch(function(){
+        return fetch(glb.replace(/\.glb$/, "-glb.txt")).then(function(r){
+          if(!r.ok) throw new Error("no model");
+          return r.text();
+        }).then(function(b64){
+          var bin = atob(b64.trim()), bytes = new Uint8Array(bin.length);
+          for(var k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+          mv.setAttribute("ar-modes", "webxr quick-look");
+          mv.src = URL.createObjectURL(new Blob([bytes], { type:"model/gltf-binary" }));
+        });
+      });
+    }
+
     items.forEach(function(it){
       var mv = it.querySelector("model-viewer");
+      if(mv && mv.getAttribute("data-glb")) useModel(mv).catch(function(){});
       var btn = it.querySelector(".ar-open");
       var note = it.querySelector(".ar-unsupported");
       if(!mv || !btn) return;
