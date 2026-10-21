@@ -550,7 +550,7 @@
       // the text column mirrors the card: both languages, the site's toggle shows the active one
       var src = it.querySelector(".tour-text");
       var label = src.querySelector(".tour-n");
-      text.innerHTML = '<span class="tour-box-count">' + (label ? label.textContent : current + 1) + " · " + (current + 1) + " / " + items.length + "</span>";
+      text.innerHTML = '<span class="tour-box-count">' + (label ? label.textContent : current + 1) + " / " + items.length + "</span>";
       Array.prototype.forEach.call(src.children, function(el){
         if(!el.classList.contains("tour-n") && !el.classList.contains("tour-more")) text.appendChild(el.cloneNode(true));
       });
