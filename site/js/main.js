@@ -500,7 +500,7 @@
         if(usdz) mv.setAttribute("ios-src", usdz);
         mv.src = glb;
       }).catch(function(){
-        return fetch(glb.replace(/\.glb$/, "-glb.txt")).then(function(r){
+        return fetch(glb.replace(/\.glb(\?.*)?$/, "-glb.txt$1")).then(function(r){
           if(!r.ok) throw new Error("no model");
           return r.text();
         }).then(function(b64){
