@@ -3,8 +3,8 @@
 # usage (Blender 4.x, background):
 #   blender -b --factory-startup -P tools/prep_ar.py -- <in.glb> <out_basename> <height|length> <metres> [turn_degrees]
 # e.g.
-#   blender -b --factory-startup -P tools/prep_ar.py -- Models/1.Gnome.glb site/ar/gnome height 1.2 180
-#   blender -b --factory-startup -P tools/prep_ar.py -- Models/2.Turtle.glb site/ar/turtle length 1.0 180
+#   blender -b --factory-startup -P tools/prep_ar.py -- "_Робочі файли/Models/1.Gnome.glb" site/ar/gnome height 1.2 180
+#   blender -b --factory-startup -P tools/prep_ar.py -- "_Робочі файли/Models/2.Turtle.glb" site/ar/turtle length 1.0 180
 import bpy, sys, math, mathutils
 
 argv = sys.argv[sys.argv.index("--") + 1:]

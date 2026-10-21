@@ -1,5 +1,6 @@
-# Working/source files that are not part of the published site
+# Working / source material (photos, models, .blend, print, docs, fonts): kept locally, not part of the site repo
+/_Робочі файли/
 *.psd
-Untitled*.png
 *.blend
 *.blend1
+Untitled*.png
