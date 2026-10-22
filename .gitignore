@@ -4,3 +4,6 @@
 *.blend
 *.blend1
 Untitled*.png
+
+# downloads cached by tools/press_map.py (satellite imagery, borders, DeepStateMap snapshot)
+tools/.map-cache/

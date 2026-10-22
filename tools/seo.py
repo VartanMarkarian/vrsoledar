@@ -33,6 +33,11 @@ PAGES = {
         desc="AR-об'єкти «Віддзеркалення»: гном, черепаха і «Релікт» — 3D-моделі з VR-простору про "
              "Соледар, які можна поставити у своїй кімнаті через камеру телефона.",
         og_type="article", priority="0.7"),
+    "presa.html": dict(
+        title="Преса — ВІДДЗЕРКАЛЕННЯ / REFRACTION",
+        desc="Матеріали для преси про VR-проєкт «Віддзеркалення» (REFRACTION): контакт для преси "
+             "та прескіт у PDF українською й англійською.",
+        og_type="article", priority="0.6"),
 }
 
 def url(path=""):
@@ -86,6 +91,15 @@ def json_ld(page, html):
             items.append(m)
         return [{"@type": "ItemList", "name": "AR-об'єкти «Віддзеркалення»", "numberOfItems": len(items),
                  "itemListElement": [{"@type": "ListItem", "position": i + 1, "item": m} for i, m in enumerate(items)]}]
+    if page == "presa.html":
+        kits = []
+        for lang, name in (("ua", "Прескіт «Віддзеркалення»"), ("en", "Refraction — press kit")):
+            kit = {"@type": "DigitalDocument", "name": name, "encodingFormat": "application/pdf",
+                   "inLanguage": "uk" if lang == "ua" else "en", "author": AUTHOR}
+            if BASE:
+                kit["url"] = url("press/refraction-presskit-%s.pdf" % lang)
+            kits.append(kit)
+        return kits
     return []
 
 def esc(t):

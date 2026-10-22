@@ -1,10 +1,13 @@
-# Publish the site/ folder to GitHub Pages (https://vrsoledar.com/) on every push to main.
+# Publish the site/ folder to GitHub Pages (https://vrsoledar.com/) on every push to main,
+# and once a day so the map on the Press page follows DeepStateMap.
 # Settings → Pages → Source must be set to "GitHub Actions".
 name: Pages
 
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: "0 4 * * *"      # every day, 04:00 UTC (06:00–07:00 in Kyiv)
   workflow_dispatch:
 
 permissions:
@@ -24,6 +27,16 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Rebuild the Press page map from today's DeepStateMap snapshot (written into this run's copy of
+      # site/ only, nothing is committed). If a source is down, the map from the repository is published.
+      - name: Update the Press page map
+        continue-on-error: true
+        run: |
+          pip install --quiet numpy pillow
+          python -I tools/press_map.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
