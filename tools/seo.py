@@ -54,7 +54,7 @@ def json_ld(page, html):
         work = {
             "@type": "CreativeWork", "name": "Віддзеркалення", "alternateName": "Refraction",
             "description": PAGES[page]["desc"], "genre": "VR experience", "inLanguage": ["uk", "en"],
-            "creator": AUTHOR, "dateCreated": "2025", "timeRequired": "PT28M", "image": img,
+            "creator": AUTHOR, "dateCreated": "2026", "timeRequired": "PT28M", "image": img,
             "about": soledar, "keywords": "Соледар, VR, віртуальна реальність, пам'ять, соляні шахти, Артемсіль, Soledar, virtual reality, memory",
             "contributor": [
                 {"@type": "Person", "name": "Вартан Маркар'ян", "alternateName": "Vartan Markarian", "jobTitle": "Арт-директор"},
